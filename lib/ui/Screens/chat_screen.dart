@@ -1,0 +1,61 @@
+import 'package:flutter/material.dart';
+import '../../models/chat_message_model.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/chat/chat_widgets.dart';
+
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
+  static const routeName = '/chat';
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _msgCtrl = TextEditingController();
+  final List<ChatMessageModel> _messages = List.of(ChatMessageModel.demoMessages);
+
+  void _sendMsg() {
+    if (_msgCtrl.text.trim().isEmpty) return;
+    setState(() {
+      _messages.add(
+        ChatMessageModel(
+          mine: true,
+          user: 'Tú',
+          avatar: '🛡️',
+          message: _msgCtrl.text.trim(),
+          time: 'ahora',
+        ),
+      );
+      _msgCtrl.clear();
+    });
+  }
+
+
+  @override
+  void dispose() {
+    _msgCtrl.dispose();
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return AppScaffold(
+      title: '💬  Chat de Guerreros',
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: _messages.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                return ChatMessageBubble(message: _messages[index]);
+              },
+            ),
+          ),
+          ChatComposer(controller: _msgCtrl, onSend: _sendMsg),
+        ],
+      ),
+    );
+  }
+}

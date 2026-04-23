@@ -1,0 +1,16 @@
+// keepUnitySymbols.gradle
+// This file is used to keep Unity symbols in the APK for debugging purposes.
+// It should be applied to the unityLibrary module.
+
+android {
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-unity.txt'
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-unity.txt'
+        }
+    }
+}
