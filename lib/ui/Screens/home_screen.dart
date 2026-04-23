@@ -26,14 +26,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           SafeArea(
             child: Stack(
               children: [
-                Positioned(
-                  top: 8,
-                  right: 16,
-                  child: IconButton(
-                    icon: const Icon(Icons.logout, color: homeRed),
-                    onPressed: () => Get.put(AuthController()).logout(),
-                  ),
-                ),
                 Positioned.fill(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -48,6 +40,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         const SizedBox(height: 40),
                       ],
                     ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 16,
+                  child: IconButton(
+                    icon: const Icon(Icons.logout, color: homeRed),
+                    onPressed: () => Get.put(AuthController()).logout(),
                   ),
                 ),
               ],

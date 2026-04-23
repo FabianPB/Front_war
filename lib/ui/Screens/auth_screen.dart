@@ -8,8 +8,10 @@ import '../widgets/app_scaffold.dart';
 import 'home_screen.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+  const AuthScreen({super.key, this.infoMessage});
   static const routeName = '/';
+
+  final String? infoMessage;
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -29,6 +31,22 @@ class _AuthScreenState extends State<AuthScreen> {
   String? _registerUsernameError;
   String? _registerEmailError;
   String? _registerPasswordError;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.infoMessage != null && widget.infoMessage!.trim().isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Get.snackbar(
+          'Sesion',
+          widget.infoMessage!,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+        );
+      });
+    }
+  }
 
   Future<void> _submitLogin() async {
     final emailError = Validators.validateEmail(_loginEmailController.text.trim());
@@ -69,10 +87,10 @@ class _AuthScreenState extends State<AuthScreen> {
       password: _registerPasswordController.text.trim(),
     );
 
-    final errorMessage = await _controller.submitRegister(user);
+    final result = await _controller.submitRegister(user);
 
     if (!mounted) return;
-    if (errorMessage == null) {
+    if (result.isSuccess) {
       final registeredEmail = _registerEmailController.text.trim();
 
       _registerUsernameController.clear();
@@ -102,6 +120,17 @@ class _AuthScreenState extends State<AuthScreen> {
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );
+
+      if (result.warningMessage != null) {
+        Get.snackbar(
+          'Aviso de sincronización',
+          result.warningMessage!,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 4),
+          backgroundColor: const Color(0xFF3A2F12),
+          colorText: const Color(0xFFFFD479),
+        );
+      }
     }
   }
 
@@ -239,6 +268,7 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget _buildRegisterForm() {
     return Obx(() {
       final errorMessage = _controller.registerError.value;
+      final warningMessage = _controller.registerWarning.value;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -267,6 +297,14 @@ class _AuthScreenState extends State<AuthScreen> {
           if (errorMessage != null) ...[
             const SizedBox(height: 14),
             Text(errorMessage, style: const TextStyle(color: Color(0xFFFF1A2E), fontSize: 12), textAlign: TextAlign.center),
+          ],
+          if (warningMessage != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              warningMessage,
+              style: const TextStyle(color: Color(0xFFFFD479), fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
           ],
           const SizedBox(height: 24),
           AuthPrimaryButton(
