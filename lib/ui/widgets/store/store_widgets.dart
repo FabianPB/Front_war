@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../models/store_item_model.dart';
+import '../qr/item_qr_sheet.dart';
+
+const _wText = Color(0xFFE8E8E8);
+const _wAccent = Color(0xFFE6451C);
+const _wMuted = Color(0xFF888888);
+const _wSurface = Color(0xFF1A1A1E);
+const _wBorder = Color(0xFF2A2A2E);
 
 class StoreFilterChip extends StatelessWidget {
   const StoreFilterChip({
@@ -21,11 +28,15 @@ class StoreFilterChip extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive ? const Color.fromRGBO(192, 0, 26, 0.2) : Colors.transparent,
+          color: isActive
+              ? _wAccent.withValues(alpha: 0.18)
+              : Colors.transparent,
           border: Border.all(
-            color: isActive ? const Color(0xFFC0001A) : const Color.fromRGBO(192, 0, 26, 0.25),
+            color: isActive
+                ? _wAccent
+                : _wBorder,
           ),
-          borderRadius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.circular(4),
         ),
         child: Text(
           label.toUpperCase(),
@@ -33,7 +44,7 @@ class StoreFilterChip extends StatelessWidget {
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.2,
-            color: isActive ? const Color(0xFFF5E8E8) : const Color.fromRGBO(200, 170, 170, 0.5),
+            color: isActive ? _wText : _wMuted,
           ),
         ),
       ),
@@ -50,9 +61,16 @@ class StoreItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(14, 3, 5, 0.85),
-        border: Border.all(color: const Color.fromRGBO(192, 0, 26, 0.18)),
-        borderRadius: BorderRadius.circular(3),
+        color: _wSurface,
+        border: Border.all(color: _wBorder),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: _wAccent.withValues(alpha: 0.06),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       padding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
       child: Stack(
@@ -71,7 +89,7 @@ class StoreItemCard extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.0,
-                  color: Color(0xFFF5E8E8),
+                  color: _wText,
                 ),
               ),
               const SizedBox(height: 4),
@@ -79,9 +97,9 @@ class StoreItemCard extends StatelessWidget {
                 child: Text(
                   item.description,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
-                    color: Color.fromRGBO(200, 170, 170, 0.45),
+                    color: _wMuted,
                     height: 1.35,
                   ),
                 ),
@@ -106,15 +124,17 @@ class StoreItemCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFFD4A03A),
+                      color: _wAccent,
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color.fromRGBO(192, 0, 26, 0.25),
-                      border: Border.all(color: const Color.fromRGBO(192, 0, 26, 0.45)),
-                      borderRadius: BorderRadius.circular(2),
+                      color: _wAccent.withValues(alpha: 0.14),
+                      border: Border.all(
+                          color: _wAccent.withValues(alpha: 0.4)),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     child: const Text(
                       'COMPRAR',
@@ -122,7 +142,7 @@ class StoreItemCard extends StatelessWidget {
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.0,
-                        color: Color(0xFFFF1A2E),
+                        color: _wAccent,
                       ),
                     ),
                   ),
@@ -135,11 +155,13 @@ class StoreItemCard extends StatelessWidget {
               top: -8,
               right: 0,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7A0010),
-                  border: Border.all(color: const Color.fromRGBO(255, 30, 50, 0.3)),
-                  borderRadius: BorderRadius.circular(2),
+                  color: _wAccent.withValues(alpha: 0.18),
+                  border:
+                      Border.all(color: _wAccent.withValues(alpha: 0.4)),
+                  borderRadius: BorderRadius.circular(3),
                 ),
                 child: Text(
                   item.badge!,
@@ -147,11 +169,30 @@ class StoreItemCard extends StatelessWidget {
                     fontSize: 8,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8,
-                    color: Color(0xFFFF1A2E),
+                    color: _wAccent,
                   ),
                 ),
               ),
             ),
+          Positioned(
+            top: -8,
+            left: 0,
+            child: InkWell(
+              onTap: () => ItemQrSheet.show(context, item),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: _wAccent.withValues(alpha: 0.12),
+                  border: Border.all(
+                      color: _wAccent.withValues(alpha: 0.4)),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(Icons.qr_code_2,
+                    size: 16, color: _wAccent),
+              ),
+            ),
+          ),
         ],
       ),
     );

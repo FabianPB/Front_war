@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Frontend War</string>
+	<string>WAR</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>frontend_war</string>
+	<string>WAR</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -66,5 +66,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- Permisos para autenticación biométrica -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>Usa Face ID para iniciar sesión de forma rápida y segura</string>
+	<key>NSLocalizedDescription</key>
+	<string>Se requiere acceso a biometría para autenticación segura</string>
+	<!-- Permisos para cámara y galería (Reto 1) -->
+	<key>NSCameraUsageDescription</key>
+	<string>W.A.R. necesita acceso a la cámara para que puedas tomar tu foto de perfil de guerrero</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>W.A.R. necesita acceso a tus fotos para que puedas elegir una imagen de perfil</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>W.A.R. guardará las fotos capturadas en tu galería</string>
+	<!-- Permisos para geolocalización (Reto 1 - Tarea 4) -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>W.A.R. usa tu ubicación para mostrar tu región de guerrero en el perfil</string>
 </dict>
 </plist>

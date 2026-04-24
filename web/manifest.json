@@ -1,6 +1,6 @@
 {
-    "name": "frontend_war",
-    "short_name": "frontend_war",
+    "name": "WAR",
+    "short_name": "WAR",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

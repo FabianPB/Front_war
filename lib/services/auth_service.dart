@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:frontend_war/services/firebase_service.dart';
+import 'package:frontend_war/services/biometric_service.dart';
 import '../models/user_model.dart';
 import 'package:flutter/services.dart';
 
@@ -62,6 +63,13 @@ class AuthService {
       final firebaseUser = result.user;
       if (firebaseUser == null) {
         return _registerError('No se pudo crear el usuario. Intenta nuevamente.');
+      }
+
+      try {
+        await firebaseUser.updateDisplayName(user.username);
+        await firebaseUser.reload();
+      } catch (e) {
+        debugPrint('No se pudo actualizar displayName tras registro: $e');
       }
 
       try {
@@ -152,6 +160,99 @@ class AuthService {
     await _safeSignOut(() => _googleSignIn.signOut(), 'Google SignOut');
   }
 
+  /// Login usando biometría (huella dactilar o reconocimiento facial)
+  /// Retorna null si el login fue exitoso, o un mensaje de error
+  Future<String?> loginWithBiometric() async {
+    try {
+      final biometricService = const BiometricService();
+      
+      // Verificar si la biometría está habilitada
+      final isEnabled = await biometricService.isBiometricEnabled();
+      if (!isEnabled) {
+        return 'Autenticación biométrica no está habilitada.';
+      }
+
+      // Intentar autenticar con biometría
+      final isAuthenticated = await biometricService.authenticate();
+      if (!isAuthenticated) {
+        return 'Autenticación biométrica cancelada o fallida.';
+      }
+
+      // Verificar si es Google Login o Email Login
+      final isGoogleLogin = await biometricService.isGoogleLoginStored();
+      
+      if (isGoogleLogin) {
+        // Re-autenticar con Google
+        return await signInWithGoogle();
+      } else {
+        // Obtener credenciales guardadas y hacer login
+        final credentials = await biometricService.getStoredEmailCredentials();
+        if (credentials == null) {
+          return 'No se encontraron credenciales guardadas.';
+        }
+        return await login(credentials['email']!, credentials['password']!);
+      }
+    } catch (e) {
+      debugPrint('Error en login biométrico: $e');
+      return 'Error durante la autenticación biométrica: $e';
+    }
+  }
+
+  /// Guarda las credenciales para login biométrico (después de un login exitoso)
+  /// Si es Google login, solo guarda la preferencia
+  Future<void> saveBiometricPreference(String email, String password) async {
+    try {
+      final biometricService = const BiometricService();
+      await biometricService.saveEmailCredentials(email, password);
+    } catch (e) {
+      debugPrint('Error guardando preferencia biométrica: $e');
+      rethrow;
+    }
+  }
+
+  /// Guarda la preferencia de Google Login para biometría
+  Future<void> saveBiometricGooglePreference() async {
+    try {
+      final biometricService = const BiometricService();
+      await biometricService.saveGoogleLoginPreference();
+    } catch (e) {
+      debugPrint('Error guardando preferencia de Google biométrico: $e');
+      rethrow;
+    }
+  }
+
+  /// Limpia los datos biométricos guardados (al hacer logout)
+  Future<void> clearBiometricData() async {
+    try {
+      final biometricService = const BiometricService();
+      await biometricService.clearBiometricData();
+    } catch (e) {
+      debugPrint('Error limpiando datos biométricos: $e');
+    }
+  }
+
+  /// Verifica si la biometría está disponible en el dispositivo
+  Future<bool> isBiometricAvailable() async {
+    try {
+      final biometricService = const BiometricService();
+      return await biometricService.isBiometricAvailable();
+    } catch (e) {
+      debugPrint('Error verificando disponibilidad biométrica: $e');
+      return false;
+    }
+  }
+
+  /// Verifica si la biometría está habilitada por el usuario
+  Future<bool> isBiometricEnabled() async {
+    try {
+      final biometricService = const BiometricService();
+      return await biometricService.isBiometricEnabled();
+    } catch (e) {
+      debugPrint('Error verificando estado biométrico: $e');
+      return false;
+    }
+  }
+
   String _platformGoogleSignInError(PlatformException exception) {
     final code = exception.code.toLowerCase();
     final details = (exception.details ?? '').toString();
@@ -186,7 +287,25 @@ class AuthService {
       final snapshot = await FirebaseService.playersRef(user.uid)
           .get()
           .timeout(const Duration(seconds: 5));
-      if (snapshot.exists) return;
+
+      if (snapshot.exists) {
+        // If profile exists but Auth has no displayName, sync it from DB.
+        if ((user.displayName ?? '').isEmpty) {
+          final data = snapshot.value;
+          if (data is Map) {
+            final storedUsername = data['username']?.toString();
+            if (storedUsername != null && storedUsername.isNotEmpty) {
+              try {
+                await user.updateDisplayName(storedUsername);
+                await user.reload();
+              } catch (e) {
+                debugPrint('No se pudo sincronizar displayName desde DB: $e');
+              }
+            }
+          }
+        }
+        return;
+      }
 
       final provider = fallbackProvider ?? _resolveProvider(user);
       final email = user.email ?? fallbackEmail ?? '';
@@ -199,6 +318,15 @@ class AuthService {
         'email': email,
         'provider': provider,
       });
+
+      if ((user.displayName ?? '').isEmpty) {
+        try {
+          await user.updateDisplayName(username);
+          await user.reload();
+        } catch (e) {
+          debugPrint('No se pudo actualizar displayName tras sync: $e');
+        }
+      }
     } catch (e) {
       debugPrint('No se pudo sincronizar perfil faltante tras login: $e');
     }

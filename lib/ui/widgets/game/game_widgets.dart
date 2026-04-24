@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../home/home_styles.dart';
 
 class GameControlOverlay extends StatelessWidget {
   const GameControlOverlay({
@@ -24,9 +25,10 @@ class GameControlOverlay extends StatelessWidget {
             left: 16,
             child: SafeArea(
               child: FloatingActionButton.small(
-                onPressed: onBack,
-                backgroundColor: Colors.black54,
-                child: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                  onPressed: onBack,
+                  backgroundColor: homeSurfaceColor,
+                  foregroundColor: homePrimary,
+                  child: const Icon(Icons.arrow_back_ios_new, color: homePrimary),
               ),
             ),
           ),

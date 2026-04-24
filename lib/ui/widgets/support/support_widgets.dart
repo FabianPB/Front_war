@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+const _wText = Color(0xFFE8E8E8);
+const _wAccent = Color(0xFFE6451C);
+const _wMuted = Color(0xFF888888);
+const _wSurface = Color(0xFF1A1A1E);
+const _wBorder = Color(0xFF2A2A2E);
+
 class SupportField extends StatelessWidget {
   const SupportField({
     super.key,
@@ -23,21 +29,22 @@ class SupportField extends StatelessWidget {
             fontSize: 9,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
-            color: Color(0xFFC0001A),
+            color: _wMuted,
           ),
         ),
         const SizedBox(height: 6),
         TextField(
           maxLines: maxLines,
-          style: const TextStyle(color: Color(0xFFF5E8E8), fontSize: 13),
+          style: const TextStyle(color: _wText, fontSize: 13),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Color.fromRGBO(200, 170, 170, 0.22)),
+            hintStyle: TextStyle(color: _wMuted.withValues(alpha: 0.6)),
             filled: true,
-            fillColor: const Color.fromRGBO(12, 2, 4, 0.75),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            enabledBorder: _outlineBorder(BorderRadius.circular(3), const Color.fromRGBO(192, 0, 26, 0.22)),
-            focusedBorder: _outlineBorder(BorderRadius.circular(3), const Color.fromRGBO(255, 30, 50, 0.5)),
+            fillColor: _wSurface,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            enabledBorder: _border(_wBorder),
+            focusedBorder: _border(_wAccent),
           ),
         ),
       ],
@@ -70,22 +77,30 @@ class SupportDropdown extends StatelessWidget {
             fontSize: 9,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
-            color: Color(0xFFC0001A),
+            color: _wMuted,
           ),
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
           initialValue: initialValue,
-          dropdownColor: const Color(0xFF1A0305),
-          style: const TextStyle(color: Color(0xFFF5E8E8), fontSize: 13),
+          dropdownColor: const Color(0xFF1A1A1E),
+          style: const TextStyle(color: _wText, fontSize: 13),
+          iconEnabledColor: _wMuted,
           decoration: InputDecoration(
             filled: true,
-            fillColor: const Color.fromRGBO(12, 2, 4, 0.75),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            enabledBorder: _outlineBorder(BorderRadius.circular(3), const Color.fromRGBO(192, 0, 26, 0.22)),
-            focusedBorder: _outlineBorder(BorderRadius.circular(3), const Color.fromRGBO(255, 30, 50, 0.5)),
+            fillColor: _wSurface,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            enabledBorder: _border(_wBorder),
+            focusedBorder: _border(_wAccent),
           ),
-          items: options.map((option) => DropdownMenuItem(value: option, child: Text(option))).toList(),
+          items: options
+              .map((o) => DropdownMenuItem(
+                    value: o,
+                    child: Text(o,
+                        style: const TextStyle(color: _wText, fontSize: 12)),
+                  ))
+              .toList(),
           onChanged: onChanged ?? (_) {},
         ),
       ],
@@ -94,41 +109,41 @@ class SupportDropdown extends StatelessWidget {
 }
 
 class SupportPrimaryButton extends StatelessWidget {
-  const SupportPrimaryButton({super.key, required this.label, required this.onPressed});
+  const SupportPrimaryButton(
+      {super.key, required this.label, required this.onPressed});
 
   final String label;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-      ).copyWith(elevation: WidgetStateProperty.all(0)),
-      child: Ink(
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF8A0010), Color(0xFFC0001A), Color(0xFFFF1A2E)],
+            colors: [Color(0xFFE6451C), Color(0xFFB83318)],
           ),
-          borderRadius: BorderRadius.circular(3),
-          boxShadow: const [BoxShadow(color: Color.fromRGBO(255, 0, 30, 0.3), blurRadius: 20)],
-        ),
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'serif',
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 2.0,
-              color: Colors.white,
+          borderRadius: BorderRadius.circular(6),
+          boxShadow: [
+            BoxShadow(
+              color: _wAccent.withValues(alpha: 0.35),
+              blurRadius: 18,
+              offset: const Offset(0, 4),
             ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'serif',
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 2.0,
+            color: Colors.white,
           ),
         ),
       ),
@@ -157,17 +172,17 @@ class SupportSuccessView extends StatelessWidget {
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2.0,
-                color: Color(0xFFFF1A2E),
+                color: _wAccent,
               ),
             ),
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'Tu caso fue registrado con éxito.\nNuestro equipo revisará tu reporte y te responderá al correo indicado en menos de 24 horas.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
                 height: 1.7,
-                color: Color.fromRGBO(200, 170, 170, 0.55),
+                color: _wMuted,
               ),
             ),
             const SizedBox(height: 20),
@@ -176,7 +191,7 @@ class SupportSuccessView extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFFFF1A2E),
+                color: _wAccent,
               ),
             ),
           ],
@@ -186,6 +201,8 @@ class SupportSuccessView extends StatelessWidget {
   }
 }
 
-InputBorder _outlineBorder(BorderRadius r, Color c) {
-  return OutlineInputBorder(borderRadius: r, borderSide: BorderSide(color: c));
-}
+OutlineInputBorder _border(Color c) =>
+    OutlineInputBorder(
+      borderRadius: BorderRadius.circular(6),
+      borderSide: BorderSide(color: c),
+    );

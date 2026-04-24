@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class StoreItemModel {
   const StoreItemModel({
+    required this.id,
     required this.category,
     required this.emoji,
     required this.name,
@@ -12,6 +13,7 @@ class StoreItemModel {
     this.badge,
   });
 
+  final String id;
   final String category;
   final String emoji;
   final String name;
@@ -21,8 +23,16 @@ class StoreItemModel {
   final String price;
   final String? badge;
 
+  static StoreItemModel? findById(String id) {
+    for (final item in demoItems) {
+      if (item.id == id) return item;
+    }
+    return null;
+  }
+
   static const demoItems = [
     StoreItemModel(
+      id: 'hacha-guerra',
       category: 'arma',
       badge: 'HOT',
       emoji: '🪓',
@@ -33,6 +43,7 @@ class StoreItemModel {
       price: '850',
     ),
     StoreItemModel(
+      id: 'machete-sangriento',
       category: 'arma',
       emoji: '🗡️',
       name: 'Machete Sangriento',
@@ -42,6 +53,7 @@ class StoreItemModel {
       price: '620',
     ),
     StoreItemModel(
+      id: 'tridente-maldito',
       category: 'arma',
       emoji: '🔱',
       name: 'Tridente Maldito',
@@ -51,6 +63,7 @@ class StoreItemModel {
       price: '1,200',
     ),
     StoreItemModel(
+      id: 'escudo-runico',
       category: 'defensa',
       emoji: '🛡️',
       name: 'Escudo Rúnico',
@@ -60,6 +73,7 @@ class StoreItemModel {
       price: '480',
     ),
     StoreItemModel(
+      id: 'espada-infierno',
       category: 'arma',
       badge: '-20%',
       emoji: '⚔️',
@@ -70,6 +84,7 @@ class StoreItemModel {
       price: '960',
     ),
     StoreItemModel(
+      id: 'bumeran-hueso',
       category: 'arma',
       emoji: '🪃',
       name: 'Bumerán de Hueso',
@@ -79,6 +94,7 @@ class StoreItemModel {
       price: '390',
     ),
     StoreItemModel(
+      id: 'amuleto-mortal',
       category: 'objeto',
       emoji: '💀',
       name: 'Amuleto Mortal',
@@ -88,6 +104,7 @@ class StoreItemModel {
       price: '700',
     ),
     StoreItemModel(
+      id: 'cota-oscura',
       category: 'defensa',
       emoji: '⛓️',
       name: 'Cota de Malla Oscura',
@@ -97,6 +114,7 @@ class StoreItemModel {
       price: '780',
     ),
     StoreItemModel(
+      id: 'pocion-sangre',
       category: 'objeto',
       emoji: '🧪',
       name: 'Poción de Sangre',
@@ -106,6 +124,7 @@ class StoreItemModel {
       price: '80',
     ),
     StoreItemModel(
+      id: 'mapa-destino',
       category: 'objeto',
       badge: 'NUEVO',
       emoji: '🗺️',

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_scaffold.dart';
+import '../widgets/app_scaffold.dart'; // WarScaffold
 import '../widgets/support/support_widgets.dart';
 
 class FormScreen extends StatefulWidget {
@@ -15,8 +15,8 @@ class _FormScreenState extends State<FormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      title: '🛡️  Centro de Soporte',
+    return WarScaffold(
+      title: 'Centro de Soporte',
       body: _submitted ? const SupportSuccessView() : _buildForm(),
     );
   }

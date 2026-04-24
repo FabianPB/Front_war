@@ -1,8 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-const _cOscuro = Color(0xFF110608);
-const _cRojo = Color(0xFFC0001A);
-const _cPlata = Color(0xFFC8BFBF);
+// ─── Dark war-themed scaffold used by all sub-screens ────────────────────────
+class WarScaffold extends StatefulWidget {
+  const WarScaffold({
+    super.key,
+    required this.title,
+    required this.body,
+    this.actions,
+  });
+
+  final String title;
+  final Widget body;
+  final List<Widget>? actions;
+
+  @override
+  State<WarScaffold> createState() => _WarScaffoldState();
+}
+
+class _WarScaffoldState extends State<WarScaffold> {
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0B0B0D),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF141418),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFFE6451C)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          widget.title.toUpperCase(),
+          style: const TextStyle(
+            color: Color(0xFFE8E8E8),
+            fontFamily: 'serif',
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+            fontSize: 14,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Color(0xFFE6451C)),
+        actionsIconTheme: const IconThemeData(color: Color(0xFFE6451C)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  Color(0xFFE6451C),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+        ),
+        actions: widget.actions,
+      ),
+      body: widget.body,
+    );
+  }
+}
+
+const _cBase = Color(0xFFF7FAFF);
+const _cPrimary = Color(0xFF2C7BE5);
+const _cAccent = Color(0xFFFF8A5B);
+const _cSurface = Color(0xFFFFFFFF);
+const _cText = Color(0xFF17324D);
+const _cMuted = Color(0xFF6E7F92);
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
@@ -23,28 +100,28 @@ class AppScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _cOscuro,
+      backgroundColor: _cBase,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       appBar: AppBar(
         title: Text(
           title.toUpperCase(),
           style: const TextStyle(
-            color: Colors.white,
+            color: _cText,
             fontFamily: 'serif',
             fontWeight: FontWeight.w900,
             letterSpacing: 2.0,
             shadows: [
-              Shadow(color: Color.fromRGBO(255, 0, 30, 0.6), blurRadius: 10),
+              Shadow(color: Color.fromRGBO(44, 123, 229, 0.22), blurRadius: 10),
             ],
           ),
         ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: _cRojo),
+        iconTheme: const IconThemeData(color: _cPrimary),
         leading: showBackButton
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: _cRojo),
+          icon: const Icon(Icons.arrow_back_ios_new, color: _cPrimary),
                 onPressed: () => Navigator.of(context).pop(),
               )
             : null,
@@ -54,7 +131,7 @@ class AppScaffold extends StatelessWidget {
           child: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.transparent, _cRojo, Colors.transparent],
+                colors: [Colors.transparent, _cAccent, Colors.transparent],
               ),
             ),
             height: 1.0,
@@ -70,7 +147,7 @@ class AppScaffold extends StatelessWidget {
                 gradient: RadialGradient(
                   center: Alignment(0, 1.2),
                   radius: 1.5,
-                  colors: [Color.fromRGBO(140, 0, 20, 0.4), Colors.transparent],
+                    colors: [Color.fromRGBO(0, 184, 169, 0.16), Colors.transparent],
                   stops: [0, 0.7],
                 ),
               ),
@@ -82,8 +159,8 @@ class AppScaffold extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFF050102), Color(0xFF0D0306), Color(0xFF130508)],
-                  stops: [0, 0.4, 1.0],
+                  colors: [Color(0xFFF7FAFF), Color(0xFFEFF6FF), Color(0xFFFFF6EE)],
+                  stops: [0, 0.55, 1.0],
                 ),
               ),
             ),
@@ -91,22 +168,22 @@ class AppScaffold extends StatelessWidget {
           SafeArea(child: Theme(
             data: Theme.of(context).copyWith(
               textTheme: const TextTheme(
-                bodyMedium: TextStyle(color: _cPlata),
-                bodyLarge: TextStyle(color: _cPlata),
-                titleMedium: TextStyle(color: Colors.white),
-                titleLarge: TextStyle(color: Colors.white),
+                bodyMedium: TextStyle(color: _cText),
+                bodyLarge: TextStyle(color: _cText),
+                titleMedium: TextStyle(color: _cText),
+                titleLarge: TextStyle(color: _cText),
               ),
               listTileTheme: ListTileThemeData(
-                iconColor: _cRojo,
-                textColor: _cPlata,
-                tileColor: const Color.fromRGBO(20, 3, 6, 0.8),
+                iconColor: _cPrimary,
+                textColor: _cText,
+                tileColor: _cSurface,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                  side: const BorderSide(color: Color.fromRGBO(192, 0, 26, 0.3)),
+                  borderRadius: BorderRadius.circular(14),
+                  side: const BorderSide(color: Color.fromRGBO(44, 123, 229, 0.18)),
                 ),
               ),
-              cardColor: const Color.fromRGBO(20, 3, 6, 0.8),
-              iconTheme: const IconThemeData(color: _cRojo),
+              cardColor: _cSurface,
+              iconTheme: const IconThemeData(color: _cPrimary),
             ),
             child: body,
           )),

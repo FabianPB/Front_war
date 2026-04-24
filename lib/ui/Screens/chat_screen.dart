@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/chat_message_model.dart';
-import '../widgets/app_scaffold.dart';
+import '../widgets/app_scaffold.dart'; // WarScaffold
 import '../widgets/chat/chat_widgets.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -39,8 +39,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      title: '💬  Chat de Guerreros',
+    return WarScaffold(
+      title: 'Chat de Guerreros',
       body: Column(
         children: [
           Expanded(

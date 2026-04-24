@@ -17,15 +17,15 @@ class HomeMenuCard extends StatelessWidget {
       width: 400,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color.fromRGBO(20, 3, 6, 0.95), Color.fromRGBO(12, 2, 4, 0.98)],
+            colors: [Color(0xFFFFFFFF), Color(0xFFF2F7FF)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        border: Border.all(color: const Color.fromRGBO(192, 0, 26, 0.3)),
+          border: Border.all(color: const Color.fromRGBO(44, 123, 229, 0.18)),
         borderRadius: BorderRadius.circular(4),
         boxShadow: const [
-          BoxShadow(color: Color.fromRGBO(255, 0, 30, 0.08), spreadRadius: 1),
-          BoxShadow(color: Colors.black87, blurRadius: 40, offset: Offset(0, 20)),
+            BoxShadow(color: Color.fromRGBO(44, 123, 229, 0.08), spreadRadius: 1),
+            BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.08), blurRadius: 24, offset: Offset(0, 20)),
         ],
       ),
       child: Stack(
@@ -70,7 +70,7 @@ class HomeMenuCard extends StatelessWidget {
                     height: 1,
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Colors.transparent, Color.fromRGBO(192, 0, 26, 0.3), Colors.transparent],
+                          colors: [Colors.transparent, Color.fromRGBO(255, 138, 91, 0.32), Colors.transparent],
                       ),
                     ),
                   ),
@@ -87,14 +87,14 @@ class HomeMenuCard extends StatelessWidget {
                     ).copyWith(
                       elevation: WidgetStateProperty.all(0),
                     ),
-                    icon: const Icon(Icons.sports_kabaddi, color: Colors.white),
+                      icon: const Icon(Icons.sports_kabaddi, color: Color(0xFF17324D)),
                     label: const Text(
                       '¡COMIENZA LA BATALLA!',
                       style: TextStyle(
                         fontFamily: 'serif',
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2,
-                        color: Colors.white,
+                          color: Color(0xFF17324D),
                       ),
                     ),
                   ).wrapWithBattleGradient(),
@@ -121,10 +121,10 @@ class _Corner extends StatelessWidget {
       height: 16,
       decoration: BoxDecoration(
         border: Border(
-          top: isTop ? const BorderSide(color: homeRed) : BorderSide.none,
-          bottom: !isTop ? const BorderSide(color: homeRed) : BorderSide.none,
-          left: isLeft ? const BorderSide(color: homeRed) : BorderSide.none,
-          right: !isLeft ? const BorderSide(color: homeRed) : BorderSide.none,
+              top: isTop ? const BorderSide(color: homePrimary) : BorderSide.none,
+              bottom: !isTop ? const BorderSide(color: homePrimary) : BorderSide.none,
+              left: isLeft ? const BorderSide(color: homePrimary) : BorderSide.none,
+              right: !isLeft ? const BorderSide(color: homePrimary) : BorderSide.none,
         ),
       ),
     );
@@ -136,14 +136,14 @@ extension _BattleBtnExt on Widget {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF8A0010), Color(0xFFC0001A), Color(0xFFFF1A2E)],
+              colors: [Color(0xFF2C7BE5), Color(0xFF00B8A9), Color(0xFFFF8A5B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(3),
         boxShadow: const [
-          BoxShadow(color: Color.fromRGBO(255, 0, 30, 0.4), blurRadius: 20),
-          BoxShadow(color: Colors.black54, blurRadius: 10, offset: Offset(0, 4)),
+              BoxShadow(color: Color.fromRGBO(44, 123, 229, 0.22), blurRadius: 20),
+              BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.08), blurRadius: 10, offset: Offset(0, 4)),
         ],
       ),
       child: this,
@@ -175,19 +175,19 @@ class _NavListItemState extends State<_NavListItem> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
-          color: _isHover ? const Color.fromRGBO(192, 0, 26, 0.12) : Colors.transparent,
-          border: Border.all(color: _isHover ? const Color.fromRGBO(255, 30, 50, 0.55) : const Color.fromRGBO(192, 0, 26, 0.15)),
+              color: _isHover ? const Color.fromRGBO(44, 123, 229, 0.08) : Colors.transparent,
+              border: Border.all(color: _isHover ? const Color.fromRGBO(255, 138, 91, 0.55) : const Color.fromRGBO(44, 123, 229, 0.15)),
           borderRadius: BorderRadius.circular(3),
         ),
         child: Row(
           children: [
-            Icon(widget.icon, color: _isHover ? homeRedBright : homeRed, size: 20),
+                Icon(widget.icon, color: _isHover ? homeAccent : homePrimary, size: 20),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
                 widget.label.toUpperCase(),
                 style: TextStyle(
-                  color: _isHover ? Colors.white : homeSilver,
+                      color: _isHover ? homeText : homeMutedText,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   letterSpacing: _isHover ? 2 : 1,
@@ -199,16 +199,16 @@ class _NavListItemState extends State<_NavListItem> {
                 margin: const EdgeInsets.only(right: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: homeBlood,
-                  border: Border.all(color: const Color.fromRGBO(255, 30, 50, 0.3)),
+                      color: const Color.fromRGBO(255, 138, 91, 0.18),
+                      border: Border.all(color: const Color.fromRGBO(255, 138, 91, 0.35)),
                   borderRadius: BorderRadius.circular(2),
                 ),
                 child: Text(
                   widget.badge!,
-                  style: const TextStyle(color: homeRedBright, fontSize: 10, fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: homeAccent, fontSize: 10, fontWeight: FontWeight.bold),
                 ),
               ),
-            Icon(Icons.play_arrow, color: homeRed.withValues(alpha: _isHover ? 1.0 : 0.0), size: 14),
+                Icon(Icons.play_arrow, color: homePrimary.withValues(alpha: _isHover ? 1.0 : 0.0), size: 14),
           ],
         ),
       ),

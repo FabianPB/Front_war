@@ -11,7 +11,7 @@ class HomeHeader extends StatelessWidget {
         const Text(
           '⚔   COMBATE SIN PIEDAD   ⚔',
           style: TextStyle(
-            color: homeRed,
+            color: homePrimary,
             fontSize: 12,
             fontWeight: FontWeight.w600,
             letterSpacing: 4.0,
@@ -25,13 +25,13 @@ class HomeHeader extends StatelessWidget {
               TextSpan(
                 text: 'W.A.R.',
                 style: TextStyle(
-                  color: homeRedBright,
+                  color: homeAccent,
                   fontFamily: 'serif',
                   fontSize: 54,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 4.0,
                   shadows: [
-                    Shadow(color: Color.fromRGBO(255, 0, 30, 0.6), blurRadius: 20),
+                    Shadow(color: Color.fromRGBO(44, 123, 229, 0.28), blurRadius: 20),
                   ],
                 ),
               ),
@@ -46,17 +46,17 @@ class HomeHeader extends StatelessWidget {
               width: 80,
               height: 1,
               decoration: const BoxDecoration(
-                gradient: LinearGradient(colors: [Colors.transparent, homeRed, Colors.transparent]),
+                gradient: LinearGradient(colors: [Colors.transparent, homePrimary, Colors.transparent]),
               ),
             ),
             const SizedBox(width: 12),
-            const Text('✦', style: TextStyle(color: homeRed, fontSize: 18)),
+            const Text('✦', style: TextStyle(color: homeAccent, fontSize: 18)),
             const SizedBox(width: 12),
             Container(
               width: 80,
               height: 1,
               decoration: const BoxDecoration(
-                gradient: LinearGradient(colors: [Colors.transparent, homeRed, Colors.transparent]),
+                gradient: LinearGradient(colors: [Colors.transparent, homePrimary, Colors.transparent]),
               ),
             ),
           ],
@@ -65,7 +65,7 @@ class HomeHeader extends StatelessWidget {
         const Text(
           'EL HONOR SE GANA CON SANGRE',
           style: TextStyle(
-            color: homeSilver,
+            color: homeMutedText,
             fontSize: 11,
             letterSpacing: 3,
             fontWeight: FontWeight.w300,

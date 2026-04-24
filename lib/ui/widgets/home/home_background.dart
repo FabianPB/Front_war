@@ -17,7 +17,7 @@ class HomeBackground extends StatelessWidget {
               gradient: RadialGradient(
                 center: Alignment(0, 1.2),
                 radius: 1.5,
-                colors: [Color.fromRGBO(140, 0, 20, 0.55), Colors.transparent],
+                colors: [Color.fromRGBO(0, 184, 169, 0.18), Colors.transparent],
                 stops: [0, 0.7],
               ),
             ),
@@ -29,7 +29,7 @@ class HomeBackground extends StatelessWidget {
               gradient: RadialGradient(
                 center: Alignment(-0.6, 0),
                 radius: 0.8,
-                colors: [Color.fromRGBO(100, 0, 10, 0.3), Colors.transparent],
+                colors: [Color.fromRGBO(255, 138, 91, 0.16), Colors.transparent],
                 stops: [0, 0.6],
               ),
             ),
@@ -41,7 +41,7 @@ class HomeBackground extends StatelessWidget {
               gradient: RadialGradient(
                 center: Alignment(0.6, 0),
                 radius: 0.8,
-                colors: [Color.fromRGBO(100, 0, 10, 0.3), Colors.transparent],
+                colors: [Color.fromRGBO(44, 123, 229, 0.14), Colors.transparent],
                 stops: [0, 0.6],
               ),
             ),
@@ -53,8 +53,8 @@ class HomeBackground extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFF050102), Color(0xFF0D0306), Color(0xFF130508)],
-                stops: [0, 0.4, 1.0],
+                colors: [Color(0xFFF7FAFF), Color(0xFFEFF6FF), Color(0xFFFFF6EE)],
+                stops: [0, 0.45, 1.0],
               ),
             ),
           ),
@@ -147,7 +147,7 @@ class _EmbersPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = homeRedBright
+      ..color = homeAccent
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.0);
 
     for (var ember in embers) {
@@ -155,7 +155,7 @@ class _EmbersPainter extends CustomPainter {
       if (ember.y > 0.9) opacity = (1.0 - ember.y) * 10;
       if (ember.y < 0.2) opacity = ember.y * 5;
 
-      paint.color = homeRedBright.withValues(alpha: opacity.clamp(0.0, 1.0));
+      paint.color = homeAccent.withValues(alpha: opacity.clamp(0.0, 1.0));
       canvas.drawCircle(Offset(ember.x * size.width, ember.y * size.height), ember.size, paint);
     }
   }
