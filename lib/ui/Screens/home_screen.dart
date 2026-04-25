@@ -907,7 +907,7 @@ class _ChartsAppBar extends StatelessWidget {
           accountsCreated: 10,
           offlineUsers: 3,
         );
-        const isLoading = false;
+        final isLoading = false;
 
         return Container(
           width: double.infinity,
@@ -946,9 +946,7 @@ class _ChartsAppBar extends StatelessWidget {
                 child: IconButton(
                   visualDensity: VisualDensity.compact,
                   icon: const Icon(Icons.download, color: _warAccent, size: 18),
-                  onPressed: isLoading
-                      ? null
-                      : () => _exportChartData(context, stats),
+                  onPressed: () => _exportChartData(context, stats),
                 ),
               ),
             ],

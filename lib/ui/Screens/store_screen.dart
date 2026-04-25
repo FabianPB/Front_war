@@ -16,8 +16,6 @@ class StoreScreen extends StatefulWidget {
 }
 
 class _StoreScreenState extends State<StoreScreen> {
-  static const List<String> _categories = ['all', 'arma', 'defensa', 'objeto'];
-
   String _selectedCat = 'all';
 
   @override
