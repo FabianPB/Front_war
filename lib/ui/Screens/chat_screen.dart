@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../models/chat_message_model.dart';
 import '../widgets/app_scaffold.dart'; // WarScaffold
 import '../widgets/chat/chat_widgets.dart';
@@ -14,6 +15,13 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _msgCtrl = TextEditingController();
   final List<ChatMessageModel> _messages = List.of(ChatMessageModel.demoMessages);
+
+  @override
+  void initState() {
+    super.initState();
+    // Allow automatic orientation rotation on chat screen
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+  }
 
   void _sendMsg() {
     if (_msgCtrl.text.trim().isEmpty) return;
@@ -31,16 +39,18 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-
   @override
   void dispose() {
     _msgCtrl.dispose();
+    // Restore automatic orientation when leaving
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
   @override
   Widget build(BuildContext context) {
     return WarScaffold(
       title: 'Chat de Guerreros',
+      lockLandscape: false,
       body: Column(
         children: [
           Expanded(

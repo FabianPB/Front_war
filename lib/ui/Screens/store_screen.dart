@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../models/store_item_model.dart';
 import '../widgets/app_scaffold.dart'; // WarScaffold
@@ -15,7 +16,27 @@ class StoreScreen extends StatefulWidget {
 }
 
 class _StoreScreenState extends State<StoreScreen> {
+  static const List<String> _categories = ['all', 'arma', 'defensa', 'objeto'];
+
   String _selectedCat = 'all';
+
+  @override
+  void initState() {
+    super.initState();
+    // Allow automatic orientation rotation on store screen
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+  }
+
+  @override
+  void dispose() {
+    // Restore automatic orientation when leaving store
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    super.dispose();
+  }
+
+  void _onCategoryTap(String category) {
+    setState(() => _selectedCat = category);
+  }
 
   Future<void> _openScanner() async {
     debugPrint('[STORE] QR button pressed, opening scanner...');
@@ -43,6 +64,7 @@ class _StoreScreenState extends State<StoreScreen> {
 
     return WarScaffold(
       title: 'Armería del Guerrero',
+      lockLandscape: false,
       actions: [
         IconButton(
           tooltip: 'Escanear QR',
@@ -58,25 +80,33 @@ class _StoreScreenState extends State<StoreScreen> {
               spacing: 6,
               runSpacing: 6,
               children: [
-                StoreFilterChip(label: 'Todos', isActive: _selectedCat == 'all', onTap: () => setState(() => _selectedCat = 'all')),
-                StoreFilterChip(label: 'Armas', isActive: _selectedCat == 'arma', onTap: () => setState(() => _selectedCat = 'arma')),
-                StoreFilterChip(label: 'Defensa', isActive: _selectedCat == 'defensa', onTap: () => setState(() => _selectedCat = 'defensa')),
-                StoreFilterChip(label: 'Objetos', isActive: _selectedCat == 'objeto', onTap: () => setState(() => _selectedCat = 'objeto')),
+                StoreFilterChip(label: 'Todos', isActive: _selectedCat == 'all', onTap: () => _onCategoryTap('all')),
+                StoreFilterChip(label: 'Armas', isActive: _selectedCat == 'arma', onTap: () => _onCategoryTap('arma')),
+                StoreFilterChip(label: 'Defensa', isActive: _selectedCat == 'defensa', onTap: () => _onCategoryTap('defensa')),
+                StoreFilterChip(label: 'Objetos', isActive: _selectedCat == 'objeto', onTap: () => _onCategoryTap('objeto')),
               ],
             ),
           ),
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.65,
-              ),
-              itemCount: filteredItems.length,
-              itemBuilder: (context, index) {
-                return StoreItemCard(item: filteredItems[index]);
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Responsive grid: 1 column on small screens, 2 on larger
+                final crossAxisCount = constraints.maxWidth < 400 ? 1 : 2;
+                final childAspectRatio = constraints.maxWidth < 400 ? 0.75 : 0.65;
+                
+                return GridView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: childAspectRatio,
+                  ),
+                  itemCount: filteredItems.length,
+                  itemBuilder: (context, index) {
+                    return StoreItemCard(item: filteredItems[index]);
+                  },
+                );
               },
             ),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../widgets/app_scaffold.dart'; // WarScaffold
 import '../widgets/support/support_widgets.dart';
 
@@ -14,9 +15,24 @@ class _FormScreenState extends State<FormScreen> {
   bool _submitted = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Allow automatic orientation rotation on support screen
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+  }
+
+  @override
+  void dispose() {
+    // Restore automatic orientation when leaving
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return WarScaffold(
       title: 'Centro de Soporte',
+      lockLandscape: false,
       body: _submitted ? const SupportSuccessView() : _buildForm(),
     );
   }

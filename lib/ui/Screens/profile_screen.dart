@@ -45,10 +45,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    // Allow automatic orientation rotation on profile screen
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _photoPath = LocalStorageService.getPhotoPath();
     _city = LocalStorageService.getCity();
     _loadUsernameFromDb();
@@ -59,6 +57,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _batterySub?.cancel();
+    // Restore automatic orientation when leaving
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
 

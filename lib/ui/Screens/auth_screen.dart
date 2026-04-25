@@ -43,10 +43,8 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    // Allow automatic orientation rotation on login screen
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     if (widget.infoMessage != null && widget.infoMessage!.trim().isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;

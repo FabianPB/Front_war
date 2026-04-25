@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../models/store_item_model.dart';
@@ -23,8 +24,20 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
   bool _handled = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Force landscape for better QR scanning
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
+    // Restore automatic orientation when returning to store
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
 
@@ -97,21 +110,26 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
+            iconSize: 20,
             onPressed: () => Get.back(),
           ),
           const Spacer(),
-          const Text(
-            'ESCANEAR CÓDIGO',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              letterSpacing: 4,
-              fontWeight: FontWeight.w600,
+          Flexible(
+            child: Text(
+              'ESCANEAR CÓDIGO',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: MediaQuery.of(context).size.width < 300 ? 10 : 14,
+                letterSpacing: 2,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const Spacer(),
           IconButton(
             icon: const Icon(Icons.flash_on, color: Colors.white),
+            iconSize: 20,
             onPressed: () => _controller.toggleTorch(),
           ),
         ],
@@ -120,41 +138,61 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
   }
 
   Widget _buildOverlay() {
-    return IgnorePointer(
-      child: Center(
-        child: Container(
-          width: 260,
-          height: 260,
-          decoration: BoxDecoration(
-            border: Border.all(color: homeAccent, width: 3),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: homeAccent.withValues(alpha: 0.35),
-                blurRadius: 24,
-                spreadRadius: 2,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Responsive size: use 70% of smallest dimension, max 260px
+        final maxSize = constraints.biggest.shortestSide * 0.7;
+        final overlaySize = maxSize > 260 ? 260.0 : maxSize;
+        
+        return IgnorePointer(
+          child: Center(
+            child: Container(
+              width: overlaySize,
+              height: overlaySize,
+              decoration: BoxDecoration(
+                border: Border.all(color: homeAccent, width: 3),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: homeAccent.withValues(alpha: 0.35),
+                    blurRadius: 24,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   Widget _buildHint() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 32),
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.65),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: homeAccent.withValues(alpha: 0.4)),
-      ),
-      child: const Text(
-        'Apunta tu cámara al código QR de la armería',
-        textAlign: TextAlign.center,
-        style: TextStyle(color: Colors.white, fontSize: 13, letterSpacing: 0.5),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Responsive padding and font size based on available space
+        final horizontalMargin = constraints.maxWidth < 300 ? 16.0 : 32.0;
+        final fontSize = constraints.maxWidth < 300 ? 11.0 : 13.0;
+        
+        return Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.65),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: homeAccent.withValues(alpha: 0.4)),
+          ),
+          child: Text(
+            'Apunta tu cámara al código QR de la armería',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: fontSize,
+              letterSpacing: 0.5,
+            ),
+          ),
+        );
+      },
     );
   }
 }

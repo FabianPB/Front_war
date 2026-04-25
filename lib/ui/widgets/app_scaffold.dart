@@ -8,11 +8,13 @@ class WarScaffold extends StatefulWidget {
     required this.title,
     required this.body,
     this.actions,
+    this.lockLandscape = true,
   });
 
   final String title;
   final Widget body;
   final List<Widget>? actions;
+  final bool lockLandscape;
 
   @override
   State<WarScaffold> createState() => _WarScaffoldState();
@@ -22,10 +24,12 @@ class _WarScaffoldState extends State<WarScaffold> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    if (widget.lockLandscape) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    }
   }
 
   @override
@@ -79,7 +83,6 @@ const _cPrimary = Color(0xFF2C7BE5);
 const _cAccent = Color(0xFFFF8A5B);
 const _cSurface = Color(0xFFFFFFFF);
 const _cText = Color(0xFF17324D);
-const _cMuted = Color(0xFF6E7F92);
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({

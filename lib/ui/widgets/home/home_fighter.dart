@@ -38,7 +38,7 @@ class _HomeFighterState extends State<HomeFighter> with SingleTickerProviderStat
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(color: Color.fromRGBO(44, 123, 229, 0.2), blurRadius: 40, spreadRadius: 10),
+                BoxShadow(color: Color.fromRGBO(0, 184, 169, 0.25), blurRadius: 40, spreadRadius: 10),
               ],
             ),
           ),
@@ -66,10 +66,10 @@ class FighterPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final s1 = Paint()..color = const Color(0xFF2C7BE5)..style = PaintingStyle.stroke..strokeWidth = 1.2;
     final s2 = Paint()..color = const Color(0xFFFF8A5B)..style = PaintingStyle.stroke..strokeWidth = 1.5;
-    final f1 = Paint()..color = const Color(0xFFFFFFFF)..style = PaintingStyle.fill;
+    final f1 = Paint()..color = const Color(0xFFF7FAFF)..style = PaintingStyle.fill;
     final fRojo = Paint()..color = const Color(0xFF00B8A9)..style = PaintingStyle.fill;
-    final fSangre = Paint()..color = const Color(0xFFFFD166)..style = PaintingStyle.fill;
-    final sPlata = Paint()..color = const Color(0xFF17324D).withValues(alpha: 0.55)..style = PaintingStyle.stroke..strokeWidth = 2.5..strokeCap = StrokeCap.round;
+    final fSangre = Paint()..color = const Color(0xFFFF8A5B)..style = PaintingStyle.fill;
+    final sPlata = Paint()..color = const Color(0xFF2C7BE5).withValues(alpha: 0.55)..style = PaintingStyle.stroke..strokeWidth = 2.5..strokeCap = StrokeCap.round;
 
     canvas.save();
     canvas.scale(size.width / 100, size.height / 120);
@@ -119,7 +119,7 @@ class FighterPainter extends CustomPainter {
     canvas.drawCircle(const Offset(79, 64), 4, fRojo);
 
     canvas.drawLine(const Offset(80, 62), const Offset(95, 30), sPlata);
-    canvas.drawLine(const Offset(88, 50), const Offset(82, 54), Paint()..color = const Color(0xFF17324D).withValues(alpha: 0.55)..style = PaintingStyle.stroke..strokeWidth = 1.5);
+    canvas.drawLine(const Offset(88, 50), const Offset(82, 54), Paint()..color = const Color(0xFF2C7BE5).withValues(alpha: 0.55)..style = PaintingStyle.stroke..strokeWidth = 1.5);
     canvas.restore();
 
     final pLegs = Paint()..color = const Color(0xFFF7FAFF)..style = PaintingStyle.fill;

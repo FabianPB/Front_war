@@ -44,6 +44,7 @@ class AuthService {
         password: password,
       );
       await _syncMissingProfileAfterAuth(credential.user, fallbackEmail: email);
+      await _markUserOnline(credential.user);
       return null;
     } on FirebaseAuthException catch (e) {
       return _authErrorMessage(e);
@@ -62,7 +63,9 @@ class AuthService {
 
       final firebaseUser = result.user;
       if (firebaseUser == null) {
-        return _registerError('No se pudo crear el usuario. Intenta nuevamente.');
+        return _registerError(
+          'No se pudo crear el usuario. Intenta nuevamente.',
+        );
       }
 
       try {
@@ -74,15 +77,21 @@ class AuthService {
 
       try {
         // Registration should succeed even if profile sync is slow or temporarily unavailable.
-        await FirebaseService.savePlayerData(firebaseUser.uid, user.toPlayerData());
+        await FirebaseService.savePlayerData(
+          firebaseUser.uid,
+          user.toPlayerData(),
+        );
+        await _markUserOnline(firebaseUser);
       } catch (e) {
         debugPrint('No se pudo guardar perfil tras registro: $e');
-        warningMessage = 'Tu cuenta se creó correctamente, pero hubo demora al sincronizar tu perfil. Se reintentará más tarde.';
+        warningMessage =
+            'Tu cuenta se creó correctamente, pero hubo demora al sincronizar tu perfil. Se reintentará más tarde.';
       }
       return RegisterResult(warningMessage: warningMessage);
     } on FirebaseAuthException catch (e) {
       // Hard validation/auth errors must be shown as real registration failures.
-      final isHardRegisterError = e.code == 'email-already-in-use' ||
+      final isHardRegisterError =
+          e.code == 'email-already-in-use' ||
           e.code == 'invalid-email' ||
           e.code == 'weak-password' ||
           e.code == 'operation-not-allowed';
@@ -95,9 +104,15 @@ class AuthService {
       if (currentUser != null &&
           currentUser.email?.toLowerCase() == user.email.toLowerCase()) {
         try {
-          await FirebaseService.savePlayerData(currentUser.uid, user.toPlayerData());
+          await FirebaseService.savePlayerData(
+            currentUser.uid,
+            user.toPlayerData(),
+          );
+          await _markUserOnline(currentUser);
         } catch (syncError) {
-          debugPrint('No se pudo sincronizar perfil tras error de red: $syncError');
+          debugPrint(
+            'No se pudo sincronizar perfil tras error de red: $syncError',
+          );
           warningMessage =
               'Tu cuenta se creó correctamente, pero la red estuvo inestable al sincronizar datos de perfil.';
         }
@@ -118,10 +133,10 @@ class AuthService {
       }
 
       final googleAuth = await googleUser.authentication;
-      
+
       // Ensure we have the tokens required
       if (googleAuth.accessToken == null && googleAuth.idToken == null) {
-          return 'Faltan credenciales de Google.';
+        return 'Faltan credenciales de Google.';
       }
 
       final credential = GoogleAuthProvider.credential(
@@ -141,6 +156,7 @@ class AuthService {
           fallbackProvider: 'google',
           fallbackUsername: firebaseUser.displayName ?? 'Usuario de Google',
         );
+        await _markUserOnline(firebaseUser);
       } catch (e) {
         // Google auth already succeeded; do not block user access by profile sync issues.
         debugPrint('No se pudo guardar perfil de Google en Realtime DB: $e');
@@ -156,6 +172,7 @@ class AuthService {
   }
 
   Future<void> signOut() async {
+    await _markCurrentUserOffline();
     await _safeSignOut(() => _auth.signOut(), 'Auth SignOut');
     await _safeSignOut(() => _googleSignIn.signOut(), 'Google SignOut');
   }
@@ -165,7 +182,7 @@ class AuthService {
   Future<String?> loginWithBiometric() async {
     try {
       final biometricService = const BiometricService();
-      
+
       // Verificar si la biometría está habilitada
       final isEnabled = await biometricService.isBiometricEnabled();
       if (!isEnabled) {
@@ -180,7 +197,7 @@ class AuthService {
 
       // Verificar si es Google Login o Email Login
       final isGoogleLogin = await biometricService.isGoogleLoginStored();
-      
+
       if (isGoogleLogin) {
         // Re-autenticar con Google
         return await signInWithGoogle();
@@ -259,7 +276,9 @@ class AuthService {
     final message = (exception.message ?? '').toLowerCase();
 
     // Common Android Google Sign-In errors when OAuth/SHA are missing.
-    if (code.contains('sign_in_failed') || details.contains('10') || message.contains('12500')) {
+    if (code.contains('sign_in_failed') ||
+        details.contains('10') ||
+        message.contains('12500')) {
       return 'Fallo al iniciar con Google (OAuth Android no configurado). '
           'Agrega SHA-1/SHA-256 en Firebase, habilita proveedor Google Auth y descarga un nuevo google-services.json.';
     }
@@ -267,7 +286,10 @@ class AuthService {
     return 'Error de plataforma: ${exception.message ?? exception.code}';
   }
 
-  Future<void> _safeSignOut(Future<void> Function() action, String label) async {
+  Future<void> _safeSignOut(
+    Future<void> Function() action,
+    String label,
+  ) async {
     try {
       await action();
     } catch (e) {
@@ -284,9 +306,9 @@ class AuthService {
     if (user == null) return;
 
     try {
-      final snapshot = await FirebaseService.playersRef(user.uid)
-          .get()
-          .timeout(const Duration(seconds: 5));
+      final snapshot = await FirebaseService.playersRef(
+        user.uid,
+      ).get().timeout(const Duration(seconds: 5));
 
       if (snapshot.exists) {
         // If profile exists but Auth has no displayName, sync it from DB.
@@ -309,7 +331,8 @@ class AuthService {
 
       final provider = fallbackProvider ?? _resolveProvider(user);
       final email = user.email ?? fallbackEmail ?? '';
-      final username = fallbackUsername ??
+      final username =
+          fallbackUsername ??
           user.displayName ??
           _usernameFromEmail(email, provider: provider);
 
@@ -332,9 +355,29 @@ class AuthService {
     }
   }
 
+  Future<void> _markUserOnline(User? user) async {
+    if (user == null) return;
+    try {
+      await FirebaseService.setUserPresence(user.uid, isOnline: true);
+    } catch (e) {
+      debugPrint('No se pudo marcar usuario online: $e');
+    }
+  }
+
+  Future<void> _markCurrentUserOffline() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    try {
+      await FirebaseService.setUserPresence(user.uid, isOnline: false);
+    } catch (e) {
+      debugPrint('No se pudo marcar usuario offline: $e');
+    }
+  }
+
   String _resolveProvider(User user) {
-    final hasGoogleProvider =
-        user.providerData.any((p) => p.providerId == 'google.com');
+    final hasGoogleProvider = user.providerData.any(
+      (p) => p.providerId == 'google.com',
+    );
     return hasGoogleProvider ? 'google' : 'password';
   }
 
