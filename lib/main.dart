@@ -9,7 +9,6 @@ import 'package:frontend_war/ui/screens/form_screen.dart';
 import 'package:frontend_war/ui/screens/game_screen.dart';
 import 'package:frontend_war/ui/screens/home_screen.dart';
 import 'package:frontend_war/ui/screens/profile_screen.dart';
-import 'package:frontend_war/ui/screens/qr_scanner_screen.dart';
 import 'package:frontend_war/ui/screens/store_screen.dart';
 
 Future<void> main() async {
@@ -53,7 +52,6 @@ class FrontendWarApp extends StatelessWidget {
         GetPage(name: ChatScreen.routeName, page: () => const ChatScreen()),
         GetPage(name: FormScreen.routeName, page: () => const FormScreen()),
         GetPage(name: ProfileScreen.routeName, page: () => const ProfileScreen()),
-        GetPage(name: QrScannerScreen.routeName, page: () => const QrScannerScreen()),
       ],
     );
   }

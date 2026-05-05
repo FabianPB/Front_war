@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import '../../models/store_item_model.dart';
-import '../widgets/app_scaffold.dart'; // WarScaffold
-import '../widgets/qr/item_found_sheet.dart';
+import '../widgets/app_scaffold.dart';
 import '../widgets/store/store_widgets.dart';
-import 'qr_scanner_screen.dart';
 
 class StoreScreen extends StatefulWidget {
   const StoreScreen({super.key});
@@ -36,24 +33,6 @@ class _StoreScreenState extends State<StoreScreen> {
     setState(() => _selectedCat = category);
   }
 
-  Future<void> _openScanner() async {
-    debugPrint('[STORE] QR button pressed, opening scanner...');
-    try {
-      final scanned = await Get.to<StoreItemModel?>(() => const QrScannerScreen());
-      debugPrint('[STORE] Scanner returned: ${scanned?.id ?? "null"}');
-      if (scanned != null && mounted) {
-        await ItemFoundSheet.show(context, scanned);
-      }
-    } catch (e, st) {
-      debugPrint('[STORE] Error opening scanner: $e\n$st');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No se pudo abrir el escáner: $e')),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final filteredItems = _selectedCat == 'all'
@@ -63,13 +42,6 @@ class _StoreScreenState extends State<StoreScreen> {
     return WarScaffold(
       title: 'Armería del Guerrero',
       lockLandscape: false,
-      actions: [
-        IconButton(
-          tooltip: 'Escanear QR',
-          icon: const Icon(Icons.qr_code_scanner, color: Color(0xFFE6451C)),
-          onPressed: _openScanner,
-        ),
-      ],
       body: Column(
         children: [
           Padding(

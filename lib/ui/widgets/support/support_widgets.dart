@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 const _wText = Color(0xFFE8E8E8);
-const _wAccent = Color(0xFFE6451C);
+const _wAccent = Color(0xFFBF360C);
 const _wMuted = Color(0xFF888888);
 const _wSurface = Color(0xFF1A1A1E);
 const _wBorder = Color(0xFF2A2A2E);
@@ -124,7 +124,7 @@ class SupportPrimaryButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFE6451C), Color(0xFFB83318)],
+            colors: [Color(0xFFBF360C), Color(0xFF8B1A00)],
           ),
           borderRadius: BorderRadius.circular(6),
           boxShadow: [

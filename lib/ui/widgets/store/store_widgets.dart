@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../models/store_item_model.dart';
-import '../qr/item_qr_sheet.dart';
 
 const _wText = Color(0xFFE8E8E8);
 const _wAccent = Color(0xFFE6451C);
@@ -174,25 +173,6 @@ class StoreItemCard extends StatelessWidget {
                 ),
               ),
             ),
-          Positioned(
-            top: -8,
-            left: 0,
-            child: InkWell(
-              onTap: () => ItemQrSheet.show(context, item),
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: _wAccent.withValues(alpha: 0.12),
-                  border: Border.all(
-                      color: _wAccent.withValues(alpha: 0.4)),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(Icons.qr_code_2,
-                    size: 16, color: _wAccent),
-              ),
-            ),
-          ),
         ],
       ),
     );

@@ -1,11 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-const _warAccent = Color(0xFFE6451C);
-const _warText = Color(0xFFE8E8E8);
-const _warMuted = Color(0xFF888888);
-const _warInputBg = Color(0xFF1A1A1E);
-const _warBorder = Color(0xFF2A2A2E);
+// Medieval War color palette (shared with auth_screen)
+const _burntOrange  = Color(0xFFBF360C);
+const _burntGlow    = Color(0xFFE64A19);
+const _warText      = Color(0xFFE8E8E8);
+const _warMuted     = Color(0xFF888888);
+const _glassBorder  = Color(0xFF3D3D3D);
+const _goldMetal    = Color(0xFFFFB300);
 
 class AuthFormCard extends StatelessWidget {
   const AuthFormCard({super.key, required this.child});
@@ -15,14 +17,14 @@ class AuthFormCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(4),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xD9141418),
-            border: Border.all(color: const Color(0x14FFFFFF)),
-            borderRadius: BorderRadius.circular(12),
+            color: const Color(0xD91E1E1E),
+            border: Border.all(color: _goldMetal.withValues(alpha: 0.45)),
+            borderRadius: BorderRadius.circular(4),
           ),
           padding: const EdgeInsets.all(28),
           child: child,
@@ -38,7 +40,7 @@ class AuthInputField extends StatefulWidget {
     required this.controller,
     required this.label,
     required this.hint,
-    this.obscure = false,
+    this.obscure  = false,
     this.type,
     this.error,
     this.focusNode,
@@ -72,17 +74,17 @@ class _AuthInputFieldState extends State<AuthInputField> {
       children: [
         Text(
           widget.label.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 9,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
-            color: _warMuted,
+            color: _warMuted.withValues(alpha: 0.85),
           ),
         ),
         const SizedBox(height: 6),
         TextField(
-          controller: widget.controller,
-          focusNode: widget.focusNode,
+          controller:  widget.controller,
+          focusNode:   widget.focusNode,
           obscureText: _isObscured,
           keyboardType: widget.type,
           style: const TextStyle(color: _warText, fontSize: 13),
@@ -91,14 +93,16 @@ class _AuthInputFieldState extends State<AuthInputField> {
             errorText: widget.error,
             hintStyle: const TextStyle(color: Color(0xFF555555)),
             filled: true,
-            fillColor: _warInputBg,
+            fillColor: const Color(0xFF161616),
             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             suffixIcon: widget.obscure
                 ? IconButton(
                     splashRadius: 18,
                     tooltip: _isObscured ? 'Mostrar contraseña' : 'Ocultar contraseña',
                     icon: Icon(
-                      _isObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      _isObscured
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
                       color: _warMuted,
                       size: 20,
                     ),
@@ -106,20 +110,20 @@ class _AuthInputFieldState extends State<AuthInputField> {
                   )
                 : null,
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: _warBorder),
+              borderRadius: BorderRadius.circular(4),
+              borderSide: BorderSide(color: _glassBorder.withValues(alpha: 0.8)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: _warAccent),
+              borderRadius: BorderRadius.circular(4),
+              borderSide: const BorderSide(color: _burntOrange, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(4),
               borderSide: const BorderSide(color: Color(0xFFFF6B6B)),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: Color(0xFFFF6B6B)),
+              borderRadius: BorderRadius.circular(4),
+              borderSide: const BorderSide(color: Color(0xFFFF6B6B), width: 1.5),
             ),
           ),
         ),
@@ -148,39 +152,47 @@ class AuthPrimaryButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ).copyWith(elevation: WidgetStateProperty.all(0)),
       child: Ink(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFE6451C), Color(0xFFB83318)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFBF360C), Color(0xFF8B1A00)],
           ),
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(4),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFE6451C).withValues(alpha: 0.35),
-              blurRadius: 18,
+              color: _burntGlow.withValues(alpha: 0.50),
+              blurRadius: 20,
               offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: _burntOrange.withValues(alpha: 0.25),
+              blurRadius: 35,
             ),
           ],
         ),
         child: Container(
           alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 14),
           child: isLoading
               ? const SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: 18, height: 18,
                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                 )
               : Text(
                   text,
                   style: const TextStyle(
                     fontFamily: 'serif',
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2.0,
                     color: Colors.white,
+                    shadows: [
+                      Shadow(color: Color(0x66FFFFFF), blurRadius: 6),
+                    ],
                   ),
                 ),
         ),
@@ -205,20 +217,20 @@ class AuthGoogleButton extends StatelessWidget {
       onPressed: isLoading ? null : onPressed,
       icon: isLoading
           ? const SizedBox(
-              width: 16,
-              height: 16,
+              width: 16, height: 16,
               child: CircularProgressIndicator(color: _warMuted, strokeWidth: 2),
             )
           : const Icon(Icons.g_mobiledata, color: _warText, size: 24),
       label: const Text(
         'ACCEDER CON GOOGLE',
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: _warText),
+        style: TextStyle(
+            fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: _warText),
       ),
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        side: const BorderSide(color: _warBorder),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        backgroundColor: _warInputBg,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        side: BorderSide(color: _glassBorder.withValues(alpha: 0.8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        backgroundColor: const Color(0xFF161616),
       ),
     );
   }
@@ -240,20 +252,20 @@ class AuthBiometricButton extends StatelessWidget {
       onPressed: isLoading ? null : onPressed,
       icon: isLoading
           ? const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(color: _warAccent, strokeWidth: 2),
+              width: 16, height: 16,
+              child: CircularProgressIndicator(color: _burntOrange, strokeWidth: 2),
             )
-          : const Icon(Icons.fingerprint, color: _warAccent, size: 24),
+          : const Icon(Icons.fingerprint, color: _burntOrange, size: 24),
       label: const Text(
         'ACCEDER CON HUELLA DACTILAR',
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: _warText),
+        style: TextStyle(
+            fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: _warText),
       ),
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        side: BorderSide(color: _warAccent.withValues(alpha: 0.4)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        backgroundColor: _warInputBg,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        side: BorderSide(color: _burntOrange.withValues(alpha: 0.4)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        backgroundColor: const Color(0xFF161616),
       ),
     );
   }

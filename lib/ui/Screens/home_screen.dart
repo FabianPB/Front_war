@@ -1,25 +1,29 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import '../../controllers/auth_controller.dart';
-import '../../services/firebase_service.dart';
 import '../../services/local_storage_service.dart';
-import '../widgets/home/home_fighter.dart';
 import 'profile_screen.dart';
 import 'chat_screen.dart';
 import 'form_screen.dart';
 import 'game_screen.dart';
 import 'store_screen.dart';
 
-const _warAccent = Color(0xFFE6451C);
-const _warText = Color(0xFFE8E8E8);
-const _warMuted = Color(0xFF888888);
-const _warBorder = Color(0xFF2A2A2E);
+// ═══════════════════════════════════════════════════════════════
+// Medieval War Home — paleta idéntica al login
+// ═══════════════════════════════════════════════════════════════
+const _dungeonBase = Color(0xFF0D0808);
+const _woodDark    = Color(0xFF2E1A0E);
+const _burntOrange = Color(0xFFBF360C);
+const _burntGlow   = Color(0xFFE64A19);
+const _goldMetal   = Color(0xFFFFB300);
+const _candleAmber = Color(0xFFFF8F00);
+const _silverSteel = Color(0xFFB0BEC5);
+const _smokedGlass = Color(0xFF1E1E1E);
+const _warText     = Color(0xFFE8E8E8);
+const _warMuted    = Color(0xFF888888);
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,19 +35,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? _avatarPath;
-  _ChartOption _selectedChart = _chartOptions.first;
 
   @override
   void initState() {
     super.initState();
-    // Allow automatic orientation rotation on home screen (menu principal)
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _refreshAvatar();
   }
 
   @override
   void dispose() {
-    // Restore automatic orientation when leaving
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
@@ -61,297 +62,106 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
-  void _selectChart(_ChartOption option) {
-    setState(() => _selectedChart = option);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Gráfico seleccionado: ${option.label}'),
-        duration: const Duration(milliseconds: 900),
-        backgroundColor: const Color(0xFF1A1A1E),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final hasAvatar = _avatarPath != null && File(_avatarPath!).existsSync();
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
-
     return isPortrait
         ? _buildPortraitLayout(hasAvatar)
         : _buildLandscapeLayout(hasAvatar);
   }
 
-  // Portrait (vertical) layout with AppBar menu
+  // ─────────────────────────────────────────────────────────────
+  // Portrait: fondo de mazmorra + cuadrícula de opciones
+  // ─────────────────────────────────────────────────────────────
   Widget _buildPortraitLayout(bool hasAvatar) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0707),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF141418),
-        elevation: 0,
-        title: Row(
-          children: [
-            GestureDetector(
-              onTap: _openProfile,
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: _warAccent, width: 1.5),
-                  color: const Color(0xFF1A1A1E),
-                ),
-                child: ClipOval(
-                  child: hasAvatar
-                      ? Image.file(File(_avatarPath!), fit: BoxFit.cover)
-                      : const Icon(Icons.person, color: _warMuted, size: 18),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'W.A.R.',
-              style: TextStyle(
-                color: _warAccent,
-                fontFamily: 'serif',
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 3,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          PopupMenuButton(
-            icon: const Icon(Icons.menu, color: _warMuted),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-            color: const Color(0xFF1A1A1E),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'tienda',
-                child: Row(
-                  children: [
-                    const Icon(Icons.storefront, color: _warAccent, size: 18),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'TIENDA',
-                      style: TextStyle(color: _warText, fontSize: 12),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _warAccent.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      child: const Text(
-                        'NUEVO',
-                        style: TextStyle(
-                          color: _warAccent,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'chat',
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.chat_bubble_outline,
-                      color: _warAccent,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'CHAT',
-                      style: TextStyle(color: _warText, fontSize: 12),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _warAccent.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      child: const Text(
-                        '12',
-                        style: TextStyle(
-                          color: _warAccent,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'eventos',
-                child: Row(
-                  children: [
-                    const Icon(Icons.flash_on, color: _warAccent, size: 18),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'EVENTOS',
-                      style: TextStyle(color: _warText, fontSize: 12),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _warAccent.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      child: const Text(
-                        'LIVE',
-                        style: TextStyle(
-                          color: _warAccent,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'soporte',
-                child: Row(
-                  children: [
-                    const Icon(Icons.security, color: _warAccent, size: 18),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'SOPORTE',
-                      style: TextStyle(color: _warText, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            onSelected: (value) {
-              switch (value) {
-                case 'tienda':
-                  _navigate(const StoreScreen());
-                  break;
-                case 'chat':
-                  _navigate(const ChatScreen());
-                  break;
-                case 'eventos':
-                  _navigate(const GameScreen());
-                  break;
-                case 'soporte':
-                  _navigate(const FormScreen());
-                  break;
-              }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: _warMuted, size: 18),
-            tooltip: 'Cerrar sesión',
-            onPressed: () => Get.put(AuthController()).logout(),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(126),
-          child: _ChartsAppBar(
-            selected: _selectedChart,
-            onSelected: _selectChart,
-          ),
-        ),
-      ),
+      backgroundColor: _dungeonBase,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF0D0808), Color(0xFF120A06)],
-              ),
-            ),
-          ),
+          // Textura de piedra
+          Positioned.fill(child: CustomPaint(painter: _StonePainter())),
+          // Overlay oscuro con gradiente atmosférico
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment.bottomCenter,
-                  radius: 1.2,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xAAE6451C),
-                    Color(0x55B83318),
-                    Color(0x22802010),
-                    Colors.transparent,
+                    Color(0xCC0D0808),
+                    Color(0x550D0808),
+                    Color(0xEE0D0808),
                   ],
-                  stops: [0.0, 0.35, 0.65, 1.0],
+                  stops: [0.0, 0.38, 1.0],
                 ),
               ),
             ),
           ),
-          Center(
+          // Brillo de antorcha superior izquierda
+          const Positioned(
+            top: -30, left: -30,
+            child: _TorchGlow(size: 220, alpha: 0.26),
+          ),
+          // Brillo de antorcha superior derecha
+          const Positioned(
+            top: -30, right: -30,
+            child: _TorchGlow(size: 220, alpha: 0.26),
+          ),
+          // Contenido principal
+          SafeArea(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: 130,
-                      height: 130,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0x55E6451C),
-                            blurRadius: 40,
-                            spreadRadius: 8,
+                // Barra superior: avatar · W.A.R. · cerrar sesión
+                _buildTopBar(hasAvatar),
+                // Escena de mazmorra (arco gótico)
+                const Expanded(
+                  flex: 4,
+                  child: _DungeonScene(),
+                ),
+                // Separador con lema
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Container(
+                          height: 0.5,
+                          color: _goldMetal.withValues(alpha: 0.30),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          'ELIGE TU DESTINO',
+                          style: TextStyle(
+                            fontSize: 8,
+                            letterSpacing: 3,
+                            color: _goldMetal.withValues(alpha: 0.6),
+                            fontWeight: FontWeight.w700,
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 130,
-                      height: 130,
-                      child: FittedBox(
-                        fit: BoxFit.contain,
-                        child: const HomeFighter(),
+                      Expanded(
+                        child: Container(
+                          height: 0.5,
+                          color: _goldMetal.withValues(alpha: 0.30),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'EL HONOR SE GANA CON SANGRE',
-                  style: TextStyle(
-                    color: _warMuted,
-                    fontSize: 8,
-                    letterSpacing: 3,
+                      const SizedBox(width: 16),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: 200,
-                  child: _BattleButton(
-                    onTap: () => _navigate(const GameScreen()),
-                  ),
+                // Cuadrícula 2×2 de opciones
+                Expanded(
+                  flex: 5,
+                  child: _buildMenuGrid(),
                 ),
+                const SizedBox(height: 10),
               ],
             ),
           ),
@@ -360,304 +170,218 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Landscape layout with side panel
+  // ─────────────────────────────────────────────────────────────
+  // Landscape: panel izquierdo (atmósfera) | panel derecho (menú)
+  // ─────────────────────────────────────────────────────────────
   Widget _buildLandscapeLayout(bool hasAvatar) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0707),
+      backgroundColor: _dungeonBase,
       body: Row(
         children: [
-          Expanded(flex: 5, child: _buildLeftPanel(hasAvatar)),
-          Expanded(flex: 4, child: _buildRightPanel()),
+          Expanded(flex: 5, child: _buildLandscapeLeft()),
+          Expanded(flex: 4, child: _buildLandscapeRight(hasAvatar)),
         ],
       ),
     );
   }
 
-  Widget _buildLeftPanel(bool hasAvatar) {
+  Widget _buildLandscapeLeft() {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Dark warm base
-        Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF0D0808), Color(0xFF120A06)],
-            ),
-          ),
-        ),
-        // Fire glow from bottom
+        Positioned.fill(child: CustomPaint(painter: _StonePainter())),
         Positioned.fill(
           child: Container(
             decoration: const BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment.bottomCenter,
-                radius: 1.2,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xAAE6451C),
-                  Color(0x55B83318),
-                  Color(0x22802010),
-                  Colors.transparent,
+                  Color(0xBB0D0808),
+                  Color(0x440D0808),
+                  Color(0xAA0D0808),
                 ],
-                stops: [0.0, 0.35, 0.65, 1.0],
+                stops: [0.0, 0.4, 1.0],
               ),
             ),
           ),
         ),
-        // Top-left ember
+        const Positioned(
+          top: -30, left: -30,
+          child: _TorchGlow(size: 200, alpha: 0.30),
+        ),
+        const Positioned(
+          bottom: -30, left: 10,
+          child: _TorchGlow(size: 150, alpha: 0.18),
+        ),
+        // Fundido derecho hacia el panel de menú
         Positioned(
-          top: -30,
-          left: -20,
+          right: 0, top: 0, bottom: 0,
           child: Container(
-            width: 160,
-            height: 160,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [Color(0x33E6451C), Colors.transparent],
-              ),
-            ),
-          ),
-        ),
-        // Faded WAR texture
-        Center(
-          child: Opacity(
-            opacity: 0.04,
-            child: Text(
-              'WAR',
-              style: TextStyle(
-                fontFamily: 'serif',
-                fontSize: 180,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                letterSpacing: 20,
-              ),
-            ),
-          ),
-        ),
-        // Content
-        SafeArea(
-          right: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top bar: avatar + branding
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: _openProfile,
-                      child: Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: _warAccent, width: 1.5),
-                          color: const Color(0xFF1A1A1E),
-                        ),
-                        child: ClipOval(
-                          child: hasAvatar
-                              ? Image.file(
-                                  File(_avatarPath!),
-                                  fit: BoxFit.cover,
-                                )
-                              : const Icon(
-                                  Icons.person,
-                                  color: _warMuted,
-                                  size: 22,
-                                ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _ChartsAppBar(
-                        selected: _selectedChart,
-                        onSelected: _selectChart,
-                        compact: true,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'W.A.R.',
-                          style: TextStyle(
-                            color: _warAccent,
-                            fontFamily: 'serif',
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 4,
-                            shadows: [
-                              Shadow(color: Color(0x88E6451C), blurRadius: 14),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          'MMORPG · PVP',
-                          style: TextStyle(
-                            color: _warMuted,
-                            fontSize: 8,
-                            letterSpacing: 3,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // Fighter centered in remaining space
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 130,
-                            height: 130,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(0x55E6451C),
-                                  blurRadius: 40,
-                                  spreadRadius: 8,
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            width: 130,
-                            height: 130,
-                            child: FittedBox(
-                              fit: BoxFit.contain,
-                              child: const HomeFighter(),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'EL HONOR SE GANA CON SANGRE',
-                        style: TextStyle(
-                          color: _warMuted,
-                          fontSize: 8,
-                          letterSpacing: 3,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        width: 200,
-                        child: _BattleButton(
-                          onTap: () => _navigate(const GameScreen()),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        // Right-edge fade into panel
-        Positioned(
-          right: 0,
-          top: 0,
-          bottom: 0,
-          child: Container(
-            width: 50,
+            width: 55,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                colors: [Colors.transparent, Color(0xFF141418)],
+                colors: [Colors.transparent, _woodDark],
               ),
             ),
+          ),
+        ),
+        // Marca W.A.R. + escena de mazmorra
+        SafeArea(
+          right: false,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'W.A.R.',
+                style: TextStyle(
+                  fontFamily: 'serif',
+                  fontSize: 30,
+                  fontWeight: FontWeight.w900,
+                  color: _burntOrange,
+                  letterSpacing: 5,
+                  shadows: [
+                    Shadow(
+                        color: _burntGlow.withValues(alpha: 0.85),
+                        blurRadius: 16),
+                    Shadow(
+                        color: _candleAmber.withValues(alpha: 0.45),
+                        blurRadius: 28),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'MMORPG · PVP',
+                style: TextStyle(
+                  fontSize: 8,
+                  letterSpacing: 3,
+                  color: _silverSteel.withValues(alpha: 0.65),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Expanded(child: _DungeonScene()),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildRightPanel() {
+  Widget _buildLandscapeRight(bool hasAvatar) {
     return Container(
-      color: const Color(0xFF141418),
+      decoration: BoxDecoration(
+        color: _woodDark,
+        border: Border(
+          left: BorderSide(
+              color: _goldMetal.withValues(alpha: 0.22), width: 0.8),
+        ),
+      ),
       child: SafeArea(
         left: false,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isSmallPanel = constraints.maxWidth < 250;
-            final padding = isSmallPanel ? 12.0 : 18.0;
-            final verticalSpacing = isSmallPanel ? 3.0 : 5.0;
-            final fontSize = isSmallPanel ? 11.0 : 14.0;
-
+            final compact = constraints.maxWidth < 220;
             return Column(
               children: [
-                // Logout row
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 6, top: 2),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.logout,
-                        color: _warMuted,
-                        size: 18,
-                      ),
-                      tooltip: 'Cerrar sesión',
-                      onPressed: () => Get.put(AuthController()).logout(),
-                    ),
-                  ),
-                ),
-                // Menu - scrollable to avoid overflow on small screens
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(padding, 0, padding, 12),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          'MENÚ PRINCIPAL',
-                          style: TextStyle(
-                            color: _warText,
-                            fontFamily: 'serif',
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 2,
+                // Avatar + título + logout
+                Padding(
+                  padding: EdgeInsets.fromLTRB(compact ? 10 : 14, 10, 4, 0),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: _openProfile,
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: _burntOrange, width: 1.5),
+                            color: _smokedGlass,
+                            boxShadow: [
+                              BoxShadow(
+                                color: _burntOrange.withValues(alpha: 0.3),
+                                blurRadius: 6,
+                              ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: hasAvatar
+                                ? Image.file(File(_avatarPath!),
+                                    fit: BoxFit.cover)
+                                : const Icon(Icons.person,
+                                    color: _warMuted, size: 18),
                           ),
                         ),
-                        SizedBox(height: isSmallPanel ? 8 : 12),
-                        _WarMenuItem(
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'MENÚ PRINCIPAL',
+                          style: TextStyle(
+                            color: _goldMetal.withValues(alpha: 0.85),
+                            fontFamily: 'serif',
+                            fontSize: compact ? 10 : 12,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.5,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.logout,
+                            color: _warMuted, size: 17),
+                        tooltip: 'Cerrar sesión',
+                        onPressed: () => Get.put(AuthController()).logout(),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
+                  child: Container(
+                    height: 0.5,
+                    color: _goldMetal.withValues(alpha: 0.28),
+                  ),
+                ),
+                // Lista de opciones
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                        compact ? 10 : 14, 4, compact ? 10 : 14, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _MedievalListItem(
                           icon: Icons.storefront,
                           label: 'TIENDA',
+                          subtitle: 'Armería del guerrero',
                           badge: 'NUEVO',
                           onTap: () => _navigate(const StoreScreen()),
                         ),
-                        SizedBox(height: verticalSpacing),
-                        _WarMenuItem(
+                        const SizedBox(height: 6),
+                        _MedievalListItem(
                           icon: Icons.chat_bubble_outline,
                           label: 'CHAT',
+                          subtitle: 'Consejo de guerra',
                           badge: '12',
                           onTap: () => _navigate(const ChatScreen()),
                         ),
-                        SizedBox(height: verticalSpacing),
-                        _WarMenuItem(
-                          icon: Icons.flash_on,
-                          label: 'EVENTOS',
+                        const SizedBox(height: 6),
+                        _MedievalListItem(
+                          icon: Icons.sports_kabaddi,
+                          label: 'JUGAR',
+                          subtitle: 'Campo de batalla',
                           badge: 'LIVE',
                           onTap: () => _navigate(const GameScreen()),
                         ),
-                        SizedBox(height: verticalSpacing),
-                        _WarMenuItem(
+                        const SizedBox(height: 6),
+                        _MedievalListItem(
                           icon: Icons.security,
                           label: 'SOPORTE',
+                          subtitle: 'Guardia real',
                           onTap: () => _navigate(const FormScreen()),
                         ),
                       ],
@@ -671,406 +395,129 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
 
-Future<void> _exportChartData(
-  BuildContext context,
-  UsersChartStats stats,
-) async {
-  try {
-    final pdfBytes = await _buildStatsPdf(stats);
-    final now = DateTime.now();
-    final fileStamp =
-        now.toIso8601String().replaceAll(':', '-').split('.').first;
-    final filename = 'reporte_war_$fileStamp.pdf';
-
-    // Save a local copy under the app's documents directory.
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/$filename');
-    await file.writeAsBytes(pdfBytes);
-
-    // Open the system share sheet so the user can save / print / send the PDF.
-    await Printing.sharePdf(bytes: pdfBytes, filename: filename);
-
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Reporte PDF generado: $filename'),
-        duration: const Duration(seconds: 3),
-        backgroundColor: const Color(0xFF1A1A1E),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  } catch (e) {
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('No se pudo generar el PDF: $e'),
-        backgroundColor: const Color(0xFF8B1A1A),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-}
-
-Future<Uint8List> _buildStatsPdf(UsersChartStats stats) async {
-  final doc = pw.Document();
-  final now = DateTime.now();
-  final dateLabel =
-      '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}'
-      ' · ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-
-  const accent = PdfColor.fromInt(0xFFE6451C);
-  const text = PdfColor.fromInt(0xFF17324D);
-  const muted = PdfColor.fromInt(0xFF6E7F92);
-  const border = PdfColor.fromInt(0xFFE0E5EC);
-
-  pw.Widget statRow(String label, int value, PdfColor color) {
-    return pw.Container(
-      padding: const pw.EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-      decoration: pw.BoxDecoration(
-        border: pw.Border.all(color: border),
-        borderRadius: pw.BorderRadius.circular(6),
-      ),
-      child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+  // ─────────────────────────────────────────────────────────────
+  // Barra superior (portrait)
+  // ─────────────────────────────────────────────────────────────
+  Widget _buildTopBar(bool hasAvatar) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 8, 4),
+      child: Row(
         children: [
-          pw.Row(children: [
-            pw.Container(
-              width: 10,
-              height: 10,
-              decoration: pw.BoxDecoration(
-                color: color,
-                shape: pw.BoxShape.circle,
-              ),
-            ),
-            pw.SizedBox(width: 10),
-            pw.Text(
-              label,
-              style: pw.TextStyle(
-                fontSize: 12,
-                color: text,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-          ]),
-          pw.Text(
-            '$value',
-            style: pw.TextStyle(
-              fontSize: 18,
-              color: color,
-              fontWeight: pw.FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  doc.addPage(
-    pw.Page(
-      pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(40),
-      build: (context) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(
-              'W.A.R.',
-              style: pw.TextStyle(
-                fontSize: 32,
-                color: accent,
-                fontWeight: pw.FontWeight.bold,
-                letterSpacing: 4,
-              ),
-            ),
-            pw.SizedBox(height: 2),
-            pw.Text(
-              'MMORPG · PVP — Reporte de usuarios',
-              style: pw.TextStyle(fontSize: 11, color: muted, letterSpacing: 2),
-            ),
-            pw.SizedBox(height: 4),
-            pw.Container(height: 2, color: accent, width: 60),
-            pw.SizedBox(height: 24),
-            pw.Text('Generado: $dateLabel',
-                style: pw.TextStyle(fontSize: 10, color: muted)),
-            pw.SizedBox(height: 30),
-            pw.Text(
-              'RESUMEN DE USUARIOS',
-              style: pw.TextStyle(
-                fontSize: 13,
-                color: text,
-                fontWeight: pw.FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
-            pw.SizedBox(height: 14),
-            statRow('Usuarios conectados', stats.connectedUsers,
-                const PdfColor.fromInt(0xFF22C55E)),
-            pw.SizedBox(height: 8),
-            statRow('Usuarios creados', stats.accountsCreated, accent),
-            pw.SizedBox(height: 8),
-            statRow('Usuarios offline', stats.offlineUsers, muted),
-            pw.SizedBox(height: 30),
-            pw.Container(
-              padding: const pw.EdgeInsets.all(14),
-              decoration: pw.BoxDecoration(
-                color: const PdfColor.fromInt(0xFFFAF5F2),
-                borderRadius: pw.BorderRadius.circular(6),
-              ),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text('Detalle',
-                      style: pw.TextStyle(
-                          fontSize: 11,
-                          color: text,
-                          fontWeight: pw.FontWeight.bold)),
-                  pw.SizedBox(height: 6),
-                  pw.Text(
-                    'Total de cuentas registradas en Firebase: '
-                    '${stats.accountsCreated}.\n'
-                    'De ellas, ${stats.connectedUsers} están actualmente '
-                    'conectadas y ${stats.offlineUsers} se encuentran offline.',
-                    style: pw.TextStyle(
-                      fontSize: 10,
-                      color: text,
-                      lineSpacing: 2,
-                    ),
+          GestureDetector(
+            onTap: _openProfile,
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: _burntOrange, width: 1.5),
+                color: _smokedGlass,
+                boxShadow: [
+                  BoxShadow(
+                    color: _burntOrange.withValues(alpha: 0.35),
+                    blurRadius: 8,
                   ),
                 ],
               ),
-            ),
-            pw.Spacer(),
-            pw.Container(
-              alignment: pw.Alignment.center,
-              child: pw.Text(
-                'EL HONOR SE GANA CON SANGRE',
-                style: pw.TextStyle(
-                    fontSize: 9, color: muted, letterSpacing: 4),
+              child: ClipOval(
+                child: hasAvatar
+                    ? Image.file(File(_avatarPath!), fit: BoxFit.cover)
+                    : const Icon(Icons.person, color: _warMuted, size: 20),
               ),
             ),
-          ],
-        );
-      },
-    ),
-  );
-
-  return doc.save();
-}
-
-class _ChartOption {
-  const _ChartOption({
-    required this.label,
-    required this.icon,
-    required this.kind,
-  });
-
-  final String label;
-  final IconData icon;
-  final _ChartKind kind;
-}
-
-enum _ChartKind { bars, lines, pie, points }
-
-const _chartOptions = [
-  _ChartOption(label: 'Barras', icon: Icons.bar_chart, kind: _ChartKind.bars),
-  _ChartOption(label: 'Líneas', icon: Icons.show_chart, kind: _ChartKind.lines),
-  _ChartOption(label: 'Circular', icon: Icons.pie_chart, kind: _ChartKind.pie),
-  _ChartOption(
-    label: 'Puntos',
-    icon: Icons.scatter_plot,
-    kind: _ChartKind.points,
-  ),
-];
-
-class _ChartsAppBar extends StatelessWidget {
-  const _ChartsAppBar({
-    required this.selected,
-    required this.onSelected,
-    this.compact = false,
-  });
-
-  final _ChartOption selected;
-  final ValueChanged<_ChartOption> onSelected;
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    // TEMP: static data while real-time Firebase stream is debugged.
-    // Replace this Builder with a StreamBuilder<UsersChartStats> using
-    // FirebaseService.usersStatsStream() once live data is verified.
-    return Builder(
-      builder: (context) {
-        const stats = UsersChartStats(
-          connectedUsers: 1,
-          accountsCreated: 10,
-          offlineUsers: 3,
-        );
-        final isLoading = false;
-
-        return Container(
-          width: double.infinity,
-          height: compact ? 76 : 118,
-          margin: EdgeInsets.fromLTRB(compact ? 0 : 12, 0, compact ? 0 : 12, 8),
-          padding: EdgeInsets.all(compact ? 8 : 10),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A1A1E),
-            border: Border.all(color: _warBorder),
-            borderRadius: BorderRadius.circular(6),
           ),
-          child: Row(
-            children: [
-              _ChartTypePopup(
-                selected: selected,
-                onSelected: onSelected,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'W.A.R.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'serif',
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: _burntOrange,
+                letterSpacing: 5,
+                shadows: [
+                  Shadow(
+                      color: _burntGlow.withValues(alpha: 0.80),
+                      blurRadius: 14),
+                  Shadow(
+                      color: _candleAmber.withValues(alpha: 0.40),
+                      blurRadius: 28),
+                ],
               ),
-              SizedBox(width: compact ? 6 : 8),
-              Expanded(
-                child: CustomPaint(
-                  painter: _UsersChartPainter(
-                    stats: stats,
-                    kind: selected.kind,
-                    muted: isLoading,
-                  ),
-                  child: const SizedBox.expand(),
-                ),
-              ),
-              if (!compact) ...[
-                const SizedBox(width: 10),
-                _StatsSummary(stats: stats, isLoading: isLoading),
-              ],
-              SizedBox(width: compact ? 4 : 6),
-              Tooltip(
-                message: 'Exportar datos',
-                child: IconButton(
-                  visualDensity: VisualDensity.compact,
-                  icon: const Icon(Icons.download, color: _warAccent, size: 18),
-                  onPressed: () => _exportChartData(context, stats),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _ChartTypePopup extends StatelessWidget {
-  const _ChartTypePopup({
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final _ChartOption selected;
-  final ValueChanged<_ChartOption> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: 'Tipo de gráfico',
-      child: Container(
-        decoration: BoxDecoration(
-          color: _warAccent.withValues(alpha: 0.16),
-          border: Border.all(color: _warAccent.withValues(alpha: 0.6)),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: PopupMenuButton<_ChartOption>(
-          tooltip: 'Tipo de gráfico',
-          padding: const EdgeInsets.all(6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-            side: const BorderSide(color: _warBorder),
-          ),
-          color: const Color(0xFF1A1A1E),
-          onSelected: onSelected,
-          itemBuilder: (context) => [
-            for (final option in _chartOptions)
-              PopupMenuItem<_ChartOption>(
-                value: option,
-                height: 38,
-                child: Row(
-                  children: [
-                    Icon(
-                      option.icon,
-                      color: identical(selected, option)
-                          ? _warAccent
-                          : _warMuted,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      option.label,
-                      style: TextStyle(
-                        color: identical(selected, option)
-                            ? _warAccent
-                            : _warText,
-                        fontSize: 12,
-                        fontWeight: identical(selected, option)
-                            ? FontWeight.w700
-                            : FontWeight.w500,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(selected.icon, color: _warAccent, size: 18),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.arrow_drop_down,
-                  color: _warAccent,
-                  size: 16,
-                ),
-              ],
             ),
           ),
-        ),
+          const SizedBox(width: 12),
+          IconButton(
+            icon: const Icon(Icons.logout, color: _warMuted, size: 18),
+            tooltip: 'Cerrar sesión',
+            onPressed: () => Get.put(AuthController()).logout(),
+          ),
+        ],
       ),
     );
   }
-}
 
-class _StatsSummary extends StatelessWidget {
-  const _StatsSummary({required this.stats, required this.isLoading});
-
-  final UsersChartStats stats;
-  final bool isLoading;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 116,
+  // ─────────────────────────────────────────────────────────────
+  // Cuadrícula 2×2 de opciones (portrait)
+  // ─────────────────────────────────────────────────────────────
+  Widget _buildMenuGrid() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _StatLine(
-            label: 'Usuarios conectados',
-            value: stats.connectedUsers,
-            color: const Color(0xFF4ADE80),
-            isLoading: isLoading,
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _MedievalCard(
+                    icon: Icons.storefront,
+                    label: 'TIENDA',
+                    subtitle: 'Armería',
+                    badge: 'NUEVO',
+                    onTap: () => _navigate(const StoreScreen()),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _MedievalCard(
+                    icon: Icons.chat_bubble_outline,
+                    label: 'CHAT',
+                    subtitle: 'Consejo',
+                    badge: '12',
+                    onTap: () => _navigate(const ChatScreen()),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 7),
-          _StatLine(
-            label: 'Usuarios creados',
-            value: stats.accountsCreated,
-            color: _warAccent,
-            isLoading: isLoading,
-          ),
-          const SizedBox(height: 7),
-          _StatLine(
-            label: 'Offline',
-            value: stats.offlineUsers,
-            color: _warMuted,
-            isLoading: isLoading,
+          const SizedBox(height: 10),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _MedievalCard(
+                    icon: Icons.sports_kabaddi,
+                    label: 'JUGAR',
+                    subtitle: 'Batalla',
+                    badge: 'LIVE',
+                    isPrimary: true,
+                    onTap: () => _navigate(const GameScreen()),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _MedievalCard(
+                    icon: Icons.security,
+                    label: 'SOPORTE',
+                    subtitle: 'Guardia real',
+                    onTap: () => _navigate(const FormScreen()),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1078,46 +525,69 @@ class _StatsSummary extends StatelessWidget {
   }
 }
 
-class _StatLine extends StatelessWidget {
-  const _StatLine({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.isLoading,
-  });
-
-  final String label;
-  final int value;
-  final Color color;
-  final bool isLoading;
+// ═══════════════════════════════════════════════════════════════
+// Escena de mazmorra — arco gótico + antorchas + ambiente
+// ═══════════════════════════════════════════════════════════════
+class _DungeonScene extends StatelessWidget {
+  const _DungeonScene();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Stack(
       children: [
-        Container(
-          width: 7,
-          height: 7,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            label,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: _warMuted,
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
+        // Arco gótico pintado
+        Positioned.fill(child: CustomPaint(painter: _ArchPainter())),
+        // Bruma inferior
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: Container(
+            height: 55,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Color(0x33BF360C),
+                  Color(0x99050202),
+                ],
+              ),
             ),
           ),
         ),
-        Text(
-          isLoading ? '...' : '$value',
-          style: TextStyle(
-            color: color,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
+        // Antorcha izquierda
+        const Positioned(left: 22, top: 12, child: _TorchWidget()),
+        // Antorcha derecha
+        const Positioned(right: 22, top: 12, child: _TorchWidget()),
+        // Escudo central + texto bajo el arco
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.shield,
+                size: 44,
+                color: _goldMetal.withValues(alpha: 0.50),
+                shadows: const [
+                  Shadow(
+                    color: Color(0x55BF360C),
+                    blurRadius: 20,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'EL HONOR SE GANA\nCON SANGRE',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 8,
+                  letterSpacing: 2.5,
+                  color: _silverSteel.withValues(alpha: 0.45),
+                  fontWeight: FontWeight.w600,
+                  height: 1.7,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -1125,339 +595,552 @@ class _StatLine extends StatelessWidget {
   }
 }
 
-class _UsersChartPainter extends CustomPainter {
-  const _UsersChartPainter({
-    required this.stats,
-    required this.kind,
-    required this.muted,
-  });
-
-  final UsersChartStats stats;
-  final _ChartKind kind;
-  final bool muted;
-
-  static const _colors = [Color(0xFF4ADE80), _warAccent, _warMuted];
-
-  List<double> get _values => [
-    stats.connectedUsers.toDouble(),
-    stats.accountsCreated.toDouble(),
-    stats.offlineUsers.toDouble(),
-  ];
+// ═══════════════════════════════════════════════════════════════
+// Antorcha — icono + resplandor
+// ═══════════════════════════════════════════════════════════════
+class _TorchWidget extends StatelessWidget {
+  const _TorchWidget();
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final values = _values;
-    final maxValue = stats.maxValue <= 0 ? 1.0 : stats.maxValue.toDouble();
-    final alpha = muted ? 0.35 : 1.0;
-    final gridPaint = Paint()
-      ..color = _warBorder.withValues(alpha: 0.75)
-      ..strokeWidth = 1;
-
-    for (var i = 1; i <= 3; i++) {
-      final y = size.height * i / 4;
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
-    }
-
-    switch (kind) {
-      case _ChartKind.bars:
-        _paintBars(canvas, size, values, maxValue, alpha);
-        break;
-      case _ChartKind.lines:
-        _paintLines(canvas, size, values, maxValue, alpha);
-        break;
-      case _ChartKind.pie:
-        _paintPie(canvas, size, values, alpha);
-        break;
-      case _ChartKind.points:
-        _paintPoints(canvas, size, values, maxValue, alpha);
-        break;
-    }
-  }
-
-  void _paintBars(
-    Canvas canvas,
-    Size size,
-    List<double> values,
-    double maxValue,
-    double alpha,
-  ) {
-    final barWidth = size.width / 7;
-    for (var i = 0; i < values.length; i++) {
-      final height = (values[i] / maxValue) * (size.height - 18);
-      final left = size.width * (i + 1) / 4 - barWidth / 2;
-      final rect = RRect.fromRectAndRadius(
-        Rect.fromLTWH(left, size.height - height, barWidth, height),
-        const Radius.circular(3),
-      );
-      canvas.drawRRect(
-        rect,
-        Paint()..color = _colors[i].withValues(alpha: alpha),
-      );
-    }
-  }
-
-  void _paintLines(
-    Canvas canvas,
-    Size size,
-    List<double> values,
-    double maxValue,
-    double alpha,
-  ) {
-    final points = _chartPoints(size, values, maxValue);
-    final path = Path()..moveTo(points.first.dx, points.first.dy);
-    for (final point in points.skip(1)) {
-      path.lineTo(point.dx, point.dy);
-    }
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = _warAccent.withValues(alpha: alpha)
-        ..strokeWidth = 3
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round,
-    );
-    _paintDots(canvas, points, alpha);
-  }
-
-  void _paintPoints(
-    Canvas canvas,
-    Size size,
-    List<double> values,
-    double maxValue,
-    double alpha,
-  ) {
-    _paintDots(canvas, _chartPoints(size, values, maxValue), alpha, radius: 6);
-  }
-
-  void _paintPie(Canvas canvas, Size size, List<double> values, double alpha) {
-    final total = values.fold<double>(0, (sum, value) => sum + value);
-    final side = size.shortestSide - 8;
-    final rect = Rect.fromCenter(
-      center: Offset(size.width / 2, size.height / 2),
-      width: side,
-      height: side,
-    );
-
-    if (total <= 0) {
-      canvas.drawOval(
-        rect,
-        Paint()
-          ..color = _warBorder
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 4,
-      );
-      return;
-    }
-
-    var start = -1.5708;
-    for (var i = 0; i < values.length; i++) {
-      final sweep = (values[i] / total) * 6.2832;
-      canvas.drawArc(
-        rect,
-        start,
-        sweep,
-        true,
-        Paint()..color = _colors[i].withValues(alpha: alpha),
-      );
-      start += sweep;
-    }
-  }
-
-  List<Offset> _chartPoints(Size size, List<double> values, double maxValue) {
-    return [
-      for (var i = 0; i < values.length; i++)
-        Offset(
-          size.width * (i + 1) / 4,
-          size.height - (values[i] / maxValue) * (size.height - 18),
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Container(
+          width: 52, height: 52,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                _candleAmber.withValues(alpha: 0.50),
+                _burntOrange.withValues(alpha: 0.20),
+                Colors.transparent,
+              ],
+            ),
+          ),
         ),
-    ];
-  }
-
-  void _paintDots(
-    Canvas canvas,
-    List<Offset> points,
-    double alpha, {
-    double radius = 4,
-  }) {
-    for (var i = 0; i < points.length; i++) {
-      canvas.drawCircle(
-        points[i],
-        radius,
-        Paint()..color = _colors[i].withValues(alpha: alpha),
-      );
-      canvas.drawCircle(
-        points[i],
-        radius + 2,
-        Paint()
-          ..color = _colors[i].withValues(alpha: 0.16 * alpha)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _UsersChartPainter oldDelegate) {
-    return oldDelegate.stats.connectedUsers != stats.connectedUsers ||
-        oldDelegate.stats.accountsCreated != stats.accountsCreated ||
-        oldDelegate.stats.offlineUsers != stats.offlineUsers ||
-        oldDelegate.kind != kind ||
-        oldDelegate.muted != muted;
+        const Icon(
+          Icons.local_fire_department,
+          size: 24,
+          color: _candleAmber,
+        ),
+      ],
+    );
   }
 }
 
-class _WarMenuItem extends StatefulWidget {
-  const _WarMenuItem({
+// ═══════════════════════════════════════════════════════════════
+// Resplandor de antorcha (fondo)
+// ═══════════════════════════════════════════════════════════════
+class _TorchGlow extends StatelessWidget {
+  const _TorchGlow({required this.size, required this.alpha});
+  final double size;
+  final double alpha;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size, height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            _candleAmber.withValues(alpha: alpha),
+            _burntOrange.withValues(alpha: alpha * 0.50),
+            Colors.transparent,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Tarjeta medieval (cuadrícula portrait)
+// ═══════════════════════════════════════════════════════════════
+class _MedievalCard extends StatefulWidget {
+  const _MedievalCard({
     required this.icon,
     required this.label,
+    required this.subtitle,
+    this.badge,
+    required this.onTap,
+    this.isPrimary = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final String? badge;
+  final VoidCallback onTap;
+  final bool isPrimary;
+
+  @override
+  State<_MedievalCard> createState() => _MedievalCardState();
+}
+
+class _MedievalCardState extends State<_MedievalCard> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor = _pressed
+        ? _burntOrange.withValues(alpha: 0.85)
+        : widget.isPrimary
+            ? _burntOrange.withValues(alpha: 0.55)
+            : _goldMetal.withValues(alpha: 0.38);
+
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        decoration: BoxDecoration(
+          color: _pressed ? const Color(0xFF1E1E1E) : const Color(0xFF141414),
+          border: Border.all(color: borderColor, width: 1.2),
+          borderRadius: BorderRadius.circular(4),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.55), blurRadius: 10),
+            if (widget.isPrimary)
+              BoxShadow(
+                color: _burntOrange.withValues(alpha: _pressed ? 0.28 : 0.12),
+                blurRadius: 18,
+              ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            // Esquinas ornamentales
+            const Positioned(top: 3, left: 3, child: _CardCorner()),
+            const Positioned(
+                top: 3, right: 3, child: _CardCorner(flipX: true)),
+            const Positioned(
+                bottom: 3, left: 3, child: _CardCorner(flipY: true)),
+            const Positioned(
+                bottom: 3,
+                right: 3,
+                child: _CardCorner(flipX: true, flipY: true)),
+            // Contenido
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Icono con aureola
+                  Container(
+                    width: 46, height: 46,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.isPrimary
+                          ? _burntOrange.withValues(alpha: 0.14)
+                          : _goldMetal.withValues(alpha: 0.08),
+                      border: Border.all(
+                        color: widget.isPrimary
+                            ? _burntOrange.withValues(alpha: 0.42)
+                            : _goldMetal.withValues(alpha: 0.28),
+                      ),
+                    ),
+                    child: Icon(
+                      widget.icon,
+                      size: 22,
+                      color: widget.isPrimary ? _burntOrange : _goldMetal,
+                      shadows: [
+                        Shadow(
+                          color: widget.isPrimary
+                              ? _burntGlow.withValues(alpha: 0.60)
+                              : _candleAmber.withValues(alpha: 0.38),
+                          blurRadius: 12,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.label,
+                    style: TextStyle(
+                      color: widget.isPrimary ? _warText : _goldMetal,
+                      fontFamily: 'serif',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    widget.subtitle,
+                    style: TextStyle(
+                      color: _silverSteel.withValues(alpha: 0.50),
+                      fontSize: 9,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  if (widget.badge != null) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: _burntOrange.withValues(alpha: 0.18),
+                        border: Border.all(
+                            color: _burntOrange.withValues(alpha: 0.50)),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        widget.badge!,
+                        style: const TextStyle(
+                          color: _burntOrange,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Elemento de lista medieval (panel landscape)
+// ═══════════════════════════════════════════════════════════════
+class _MedievalListItem extends StatefulWidget {
+  const _MedievalListItem({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
     this.badge,
     required this.onTap,
   });
 
   final IconData icon;
   final String label;
+  final String subtitle;
   final String? badge;
   final VoidCallback onTap;
 
   @override
-  State<_WarMenuItem> createState() => _WarMenuItemState();
+  State<_MedievalListItem> createState() => _MedievalListItemState();
 }
 
-class _WarMenuItemState extends State<_WarMenuItem> {
+class _MedievalListItemState extends State<_MedievalListItem> {
   bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Responsive sizing based on available width
-        final isSmallScreen = constraints.maxWidth < 250;
-        final padding = isSmallScreen ? 10.0 : 14.0;
-        final fontSize = isSmallScreen ? 10.0 : 12.0;
-        final iconSize = isSmallScreen ? 16.0 : 18.0;
-
-        return InkWell(
-          onTap: widget.onTap,
-          onHighlightChanged: (h) => setState(() => _pressed = h),
-          borderRadius: BorderRadius.circular(6),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: EdgeInsets.symmetric(horizontal: padding, vertical: 11),
-            decoration: BoxDecoration(
-              color: _pressed
-                  ? const Color(0x22E6451C)
-                  : const Color(0xFF1A1A1E),
-              border: Border.all(
-                color: _pressed
-                    ? _warAccent.withValues(alpha: 0.6)
-                    : _warBorder,
-              ),
-              borderRadius: BorderRadius.circular(6),
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: _pressed
+              ? _burntOrange.withValues(alpha: 0.10)
+              : const Color(0xFF1A1010),
+          border: Border.all(
+            color: _pressed
+                ? _burntOrange.withValues(alpha: 0.65)
+                : _goldMetal.withValues(alpha: 0.22),
+          ),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              widget.icon,
+              size: 18,
+              color: _pressed ? _burntOrange : _goldMetal,
             ),
-            child: Row(
-              children: [
-                Icon(
-                  widget.icon,
-                  color: _pressed ? _warAccent : _warMuted,
-                  size: iconSize,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
                     widget.label,
                     style: TextStyle(
-                      color: _pressed ? _warText : _warMuted,
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: _pressed ? 2 : 1,
+                      color: _pressed ? _warText : _goldMetal,
+                      fontFamily: 'serif',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-                if (widget.badge != null) ...[
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 1,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _warAccent.withValues(alpha: 0.18),
-                      border: Border.all(
-                        color: _warAccent.withValues(alpha: 0.4),
-                      ),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: Text(
-                      widget.badge!,
-                      style: const TextStyle(
-                        color: _warAccent,
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  Text(
+                    widget.subtitle,
+                    style: TextStyle(
+                      color: _silverSteel.withValues(alpha: 0.48),
+                      fontSize: 9,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.chevron_right,
-                  color: _warAccent.withValues(alpha: _pressed ? 1.0 : 0.0),
-                  size: 14,
+              ),
+            ),
+            if (widget.badge != null) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _burntOrange.withValues(alpha: 0.18),
+                  border: Border.all(
+                      color: _burntOrange.withValues(alpha: 0.42)),
+                  borderRadius: BorderRadius.circular(3),
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _BattleButton extends StatelessWidget {
-  const _BattleButton({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFE6451C), Color(0xFFB83318)],
-          ),
-          borderRadius: BorderRadius.circular(6),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFE6451C).withValues(alpha: 0.35),
-              blurRadius: 18,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(Icons.sports_kabaddi, color: Colors.white, size: 18),
-              SizedBox(width: 8),
-              Text(
-                '¡COMIENZA LA BATALLA!',
-                style: TextStyle(
-                  fontFamily: 'serif',
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
-                  color: Colors.white,
-                  fontSize: 12,
+                child: Text(
+                  widget.badge!,
+                  style: const TextStyle(
+                    color: _burntOrange,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ],
-          ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.chevron_right,
+              color: _burntOrange.withValues(alpha: _pressed ? 1.0 : 0.28),
+              size: 14,
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Esquina ornamental de tarjeta
+// ═══════════════════════════════════════════════════════════════
+class _CardCorner extends StatelessWidget {
+  const _CardCorner({this.flipX = false, this.flipY = false});
+  final bool flipX;
+  final bool flipY;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget child = const SizedBox(
+      width: 10, height: 10,
+      child: CustomPaint(painter: _CornerPainter()),
+    );
+    if (flipX || flipY) {
+      child = Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.diagonal3Values(
+          flipX ? -1.0 : 1.0,
+          flipY ? -1.0 : 1.0,
+          1.0,
+        ),
+        child: child,
+      );
+    }
+    return child;
+  }
+}
+
+class _CornerPainter extends CustomPainter {
+  const _CornerPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFFFB300).withValues(alpha: 0.52)
+      ..strokeWidth = 0.9
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(Offset(size.width, 0), Offset.zero, paint);
+    canvas.drawLine(Offset.zero, Offset(0, size.height), paint);
+    canvas.drawLine(Offset(size.width * 0.55, 0),
+        Offset(size.width * 0.55, 3.0), paint);
+    canvas.drawLine(Offset(0, size.height * 0.55),
+        Offset(3.0, size.height * 0.55), paint);
+    paint.style = PaintingStyle.fill;
+    canvas.drawCircle(Offset.zero, 1.5, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Pintor del arco gótico de mazmorra
+// ═══════════════════════════════════════════════════════════════
+class _ArchPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final archW = math.min(size.width * 0.62, 260.0);
+    final archLeft  = cx - archW / 2;
+    final archRight = cx + archW / 2;
+    final archTop    = size.height * 0.04;
+    final archBottom = size.height * 0.86;
+    final archMid    = archTop + (archBottom - archTop) * 0.44;
+
+    // ── Construcción del arco gótico apuntado ─────────────────
+    final archPath = Path();
+    archPath.moveTo(archLeft, archBottom);
+    archPath.lineTo(archLeft, archMid);
+    archPath.cubicTo(
+      archLeft, archTop + (archMid - archTop) * 0.22,
+      cx - archW * 0.07, archTop,
+      cx, archTop,
+    );
+    archPath.cubicTo(
+      cx + archW * 0.07, archTop,
+      archRight, archTop + (archMid - archTop) * 0.22,
+      archRight, archMid,
+    );
+    archPath.lineTo(archRight, archBottom);
+
+    // Interior oscuro del arco
+    canvas.drawPath(archPath,
+        Paint()..color = const Color(0xFF060303));
+
+    // Borde dorado exterior
+    canvas.drawPath(
+      archPath,
+      Paint()
+        ..color = _goldMetal.withValues(alpha: 0.72)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8
+        ..strokeJoin = StrokeJoin.round,
+    );
+
+    // Arco interior decorativo
+    final m = archW * 0.075;
+    final iPath = Path();
+    final iL = archLeft + m;
+    final iR = archRight - m;
+    final iTop = archTop + m * 0.65;
+    iPath.moveTo(iL, archBottom);
+    iPath.lineTo(iL, archMid);
+    iPath.cubicTo(
+      iL, iTop + (archMid - iTop) * 0.22,
+      cx - (archW - m * 2) * 0.07, iTop,
+      cx, iTop,
+    );
+    iPath.cubicTo(
+      cx + (archW - m * 2) * 0.07, iTop,
+      iR, iTop + (archMid - iTop) * 0.22,
+      iR, archMid,
+    );
+    iPath.lineTo(iR, archBottom);
+    canvas.drawPath(
+      iPath,
+      Paint()
+        ..color = _goldMetal.withValues(alpha: 0.22)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.7,
+    );
+
+    // ── Perspectiva del suelo ─────────────────────────────────
+    _paintFloor(canvas, size, archBottom);
+
+    // ── Clave del arco (diamante) ─────────────────────────────
+    _paintKeystone(canvas, cx, archTop);
+
+    // ── Capiteles de las columnas ─────────────────────────────
+    _paintPillarCaps(canvas, archLeft, archRight, archBottom);
+  }
+
+  void _paintFloor(Canvas canvas, Size size, double floorY) {
+    final paint = Paint()
+      ..color = _goldMetal.withValues(alpha: 0.13)
+      ..strokeWidth = 0.55;
+    final cx = size.width / 2;
+    final vY = floorY * 0.60;
+    // Líneas de perspectiva diagonales
+    for (var i = 0; i <= 6; i++) {
+      final sx = size.width * i / 6;
+      canvas.drawLine(
+        Offset(sx, size.height),
+        Offset(cx + (sx - cx) * 0.22, vY),
+        paint,
+      );
+    }
+    // Líneas horizontales del suelo
+    for (var i = 1; i <= 3; i++) {
+      final y = floorY + (size.height - floorY) * i / 4;
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  void _paintKeystone(Canvas canvas, double cx, double archTop) {
+    final paint = Paint()
+      ..color = _goldMetal.withValues(alpha: 0.88);
+    final path = Path();
+    const ks = 7.0;
+    path.moveTo(cx, archTop - ks);
+    path.lineTo(cx + ks * 0.55, archTop);
+    path.lineTo(cx, archTop + ks);
+    path.lineTo(cx - ks * 0.55, archTop);
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  void _paintPillarCaps(
+      Canvas canvas, double left, double right, double bottom) {
+    final paint = Paint()
+      ..color = _goldMetal.withValues(alpha: 0.42)
+      ..strokeWidth = 1.4
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(Offset(left - 7, bottom), Offset(left + 7, bottom), paint);
+    canvas.drawLine(
+        Offset(right - 7, bottom), Offset(right + 7, bottom), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Textura de muro de piedra medieval
+// ═══════════════════════════════════════════════════════════════
+class _StonePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rng = math.Random(33);
+    const blockH = 26.0;
+    const blockW = 52.0;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.55;
+
+    for (var row = 0; row * blockH < size.height + blockH; row++) {
+      final offset = (row % 2 == 0) ? 0.0 : blockW * 0.5;
+      for (var col = -1; col * blockW < size.width + blockW; col++) {
+        final x = col * blockW + offset;
+        final y = row * blockH;
+        final shade = 0.022 + rng.nextDouble() * 0.042;
+        paint.color = Color.fromRGBO(180, 115, 55, shade);
+        canvas.drawRect(
+          Rect.fromLTWH(x + 0.5, y + 0.5, blockW - 1, blockH - 1),
+          paint,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
