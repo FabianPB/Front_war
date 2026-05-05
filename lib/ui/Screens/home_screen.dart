@@ -503,7 +503,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     label: 'JUGAR',
                     subtitle: 'Batalla',
                     badge: 'LIVE',
-                    isPrimary: true,
                     onTap: () => _navigate(const GameScreen()),
                   ),
                 ),
