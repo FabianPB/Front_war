@@ -1,48 +1,54 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../models/chat_message_model.dart';
 import '../../services/character_id_service.dart';
 import '../../services/global_chat_service.dart';
-import '../../services/social_api_service.dart';
+import '../../services/private_chat_service.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/chat/chat_widgets.dart';
-import '../widgets/chat/player_action_sheet.dart';
 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
-  static const routeName = '/chat';
+/// Pantalla de chat privado 1-a-1 entre el jugador actual y [partnerCharacterId].
+class PrivateChatScreen extends StatefulWidget {
+  const PrivateChatScreen({
+    super.key,
+    required this.partnerCharacterId,
+    required this.partnerName,
+    required this.partnerAvatar,
+  });
+
+  final String partnerCharacterId;
+  final String partnerName;
+  final String partnerAvatar;
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<PrivateChatScreen> createState() => _PrivateChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _PrivateChatScreenState extends State<PrivateChatScreen> {
   final _msgCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
   final _messages = <ChatMessageModel>[];
 
-  GlobalChatService? _chatService;
-  SocialApiService? _socialService;
+  PrivateChatService? _chatService;
   Timer? _pollTimer;
 
   bool _loading = true;
   bool _connected = false;
 
-  String _myCharacterId = '';
-
   @override
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _initialize();
   }
 
   Future<void> _initialize() async {
-    final characterId = await CharacterIdService.get();
-    _myCharacterId = characterId;
-    _chatService = GlobalChatService(characterId: characterId);
-    _socialService = SocialApiService(characterId);
+    final myCharacterId = await CharacterIdService.get();
+    final myDisplayName = GlobalChatService.displayName;
+    _chatService = PrivateChatService(
+      myCharacterId: myCharacterId,
+      myDisplayName: myDisplayName,
+      partnerCharacterId: widget.partnerCharacterId,
+    );
     await _loadMessages();
     _pollTimer =
         Timer.periodic(const Duration(seconds: 3), (_) => _loadMessages());
@@ -91,33 +97,18 @@ class _ChatScreenState extends State<ChatScreen> {
     _chatService?.sendMessage(text).whenComplete(_loadMessages);
   }
 
-  void _onAvatarTap(ChatMessageModel msg) {
-    final targetId = msg.accountId;
-    if (targetId == null || _socialService == null) return;
-    showPlayerActionSheet(
-      context: context,
-      playerName: msg.user,
-      playerAvatar: msg.avatar,
-      targetCharacterId: targetId,
-      myCharacterId: _myCharacterId,
-      myDisplayName: GlobalChatService.displayName,
-      socialService: _socialService!,
-    );
-  }
-
   @override
   void dispose() {
     _pollTimer?.cancel();
     _msgCtrl.dispose();
     _scrollCtrl.dispose();
-    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return WarScaffold(
-      title: 'Chat de Guerreros',
+      title: '${widget.partnerAvatar}  ${widget.partnerName}',
       lockLandscape: false,
       body: Column(
         children: [
@@ -125,15 +116,16 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: _loading
                 ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFFE6451C)),
+                    child:
+                        CircularProgressIndicator(color: Color(0xFFE6451C)),
                   )
                 : _messages.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
-                          'Sin mensajes aún.\n¡Sé el primero en hablar, guerrero!',
+                          'Sin mensajes aún.\n¡Escribe algo a ${widget.partnerName}!',
                           textAlign: TextAlign.center,
-                          style:
-                              TextStyle(color: Color(0xFF888888), fontSize: 14),
+                          style: const TextStyle(
+                              color: Color(0xFF888888), fontSize: 14),
                         ),
                       )
                     : ListView.separated(
@@ -142,15 +134,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemCount: _messages.length,
                         separatorBuilder: (_, _) =>
                             const SizedBox(height: 12),
-                        itemBuilder: (_, i) {
-                          final msg = _messages[i];
-                          return ChatMessageBubble(
-                            message: msg,
-                            onAvatarTap: msg.mine
-                                ? null
-                                : () => _onAvatarTap(msg),
-                          );
-                        },
+                        itemBuilder: (_, i) =>
+                            ChatMessageBubble(message: _messages[i]),
                       ),
           ),
           ChatComposer(controller: _msgCtrl, onSend: _sendMsg),

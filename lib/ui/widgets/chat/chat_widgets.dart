@@ -8,9 +8,17 @@ const _wSurface = Color(0xFF1A1A1E);
 const _wBorder = Color(0xFF2A2A2E);
 
 class ChatMessageBubble extends StatelessWidget {
-  const ChatMessageBubble({super.key, required this.message});
+  const ChatMessageBubble({
+    super.key,
+    required this.message,
+    this.onAvatarTap,
+  });
 
   final ChatMessageModel message;
+
+  /// Callback al tocar el avatar de otro jugador.
+  /// Solo se invoca si [message.mine] es false.
+  final VoidCallback? onAvatarTap;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +35,14 @@ class ChatMessageBubble extends StatelessWidget {
           message.mine ? MainAxisAlignment.end : MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!message.mine) ChatAvatar(emoji: message.avatar),
+        if (!message.mine)
+          GestureDetector(
+            onTap: onAvatarTap,
+            child: ChatAvatar(
+              emoji: message.avatar,
+              tappable: onAvatarTap != null,
+            ),
+          ),
         if (!message.mine) const SizedBox(width: 10),
         Flexible(
           child: Column(
@@ -70,9 +85,8 @@ class ChatMessageBubble extends StatelessWidget {
               const SizedBox(height: 3),
               Text(
                 message.time,
-                style: TextStyle(
-                    fontSize: 9,
-                    color: _wMuted.withValues(alpha: 0.7)),
+                style:
+                    TextStyle(fontSize: 9, color: _wMuted.withValues(alpha: 0.7)),
               ),
             ],
           ),
@@ -85,9 +99,10 @@ class ChatMessageBubble extends StatelessWidget {
 }
 
 class ChatAvatar extends StatelessWidget {
-  const ChatAvatar({super.key, required this.emoji});
+  const ChatAvatar({super.key, required this.emoji, this.tappable = false});
 
   final String emoji;
+  final bool tappable;
 
   @override
   Widget build(BuildContext context) {
@@ -95,8 +110,14 @@ class ChatAvatar extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: _wAccent.withValues(alpha: 0.14),
-        border: Border.all(color: _wAccent.withValues(alpha: 0.35)),
+        color: tappable
+            ? _wAccent.withValues(alpha: 0.22)
+            : _wAccent.withValues(alpha: 0.14),
+        border: Border.all(
+          color: tappable
+              ? _wAccent.withValues(alpha: 0.6)
+              : _wAccent.withValues(alpha: 0.35),
+        ),
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
@@ -131,8 +152,7 @@ class ChatComposer extends StatelessWidget {
               style: const TextStyle(color: _wText, fontSize: 13),
               decoration: InputDecoration(
                 hintText: 'Escribe tu mensaje, guerrero…',
-                hintStyle:
-                    TextStyle(color: _wMuted.withValues(alpha: 0.6)),
+                hintStyle: TextStyle(color: _wMuted.withValues(alpha: 0.6)),
                 filled: true,
                 fillColor: _wSurface,
                 contentPadding:
