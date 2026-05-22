@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\fabia\\\\Downloads\\\\frontend_war\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\fabia\\\\Downloads\\\\frontend_war\\\\War-Backend\\\\War.Api\" -Recurse | Where-Object {$_.Extension -eq '.cs'} | Select-Object -ExpandProperty FullName | Sort-Object)",
+      "Bash(dotnet restore *)",
+      "Bash(dotnet build *)",
+      "Bash(netstat -ano)",
+      "Bash(kill -9 14240)",
+      "Bash(taskkill /F /PID 14240)",
+      "Bash(ipconfig)",
+      "PowerShell(New-NetFirewallRule -DisplayName \"WAR Backend :5041\" -Direction Inbound -Protocol TCP -LocalPort 5041 -Action Allow -ErrorAction SilentlyContinue)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\fabia\\\\Downloads\\\\frontend_war\\\\War-Backend\\\\War.Api\\\\Application\\\\Social\\\\\" -Filter \"*SocialRelationship*\" -ErrorAction SilentlyContinue)"
+    ]
+  }
+}

@@ -1,0 +1,2892 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>WAR Backend · Diagramas UML</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+<style>
+  :root {
+    --bg: #0e1117;
+    --bg-alt: #161b22;
+    --bg-card: #1c232e;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #f78166;
+    --accent-2: #58a6ff;
+    --accent-3: #3fb950;
+    --accent-4: #d29922;
+    --accent-5: #a371f7;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; }
+  body { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+  aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--bg-alt); border-right: 1px solid var(--border); padding: 20px 0; }
+  aside h2 { margin: 0 20px 16px; font-size: 15px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+  aside nav a { display: block; padding: 9px 20px; color: var(--text-dim); text-decoration: none; border-left: 3px solid transparent; font-size: 13.5px; transition: all 0.15s; }
+  aside nav a:hover { color: var(--text); background: var(--bg-card); border-left-color: var(--accent); }
+  aside nav a.sub { padding-left: 32px; font-size: 12.5px; }
+  main { padding: 28px 40px 80px; max-width: 1400px; }
+  header.hero { margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  header.hero h1 { margin: 0 0 8px; font-size: 32px; color: var(--accent); }
+  header.hero p { margin: 4px 0; color: var(--text-dim); font-size: 14px; }
+  section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  section > h2 { color: var(--accent-2); font-size: 24px; margin: 0 0 8px; border-bottom: 2px solid var(--accent-2); padding-bottom: 8px; }
+  section > h3 { color: var(--accent); font-size: 18px; margin: 30px 0 12px; }
+  section > .subtitle { color: var(--text-dim); font-size: 14px; margin: 0 0 22px; font-style: italic; }
+  section > p { font-size: 14px; color: var(--text); }
+
+  .diagram-box { position: relative; margin: 16px 0 32px; }
+  .diagram-tools { display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 6px; }
+  .diagram-tools button { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .diagram-tools button:hover { border-color: var(--accent); color: var(--accent); }
+  .diagram-wrapper { background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; overflow: hidden; min-height: 520px; position: relative; }
+  .diagram-wrapper.fullscreen { position: fixed; inset: 0; z-index: 9999; border-radius: 0; min-height: 100vh; padding: 20px; }
+  .diagram-wrapper .mermaid { width: 100%; height: 100%; min-height: 480px; }
+  .diagram-wrapper .mermaid svg { max-width: none !important; width: 100% !important; height: 100% !important; min-height: 480px !important; }
+  .diagram-hint { position: absolute; bottom: 8px; right: 12px; font-size: 11px; color: var(--text-dim); background: rgba(255,255,255,0.85); padding: 3px 8px; border-radius: 3px; pointer-events: none; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 20px; font-size: 12px; }
+  .legend-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; }
+  .legend-item .sym { font-family: var(--mono); color: var(--accent-3); }
+  code { font-family: var(--mono); font-size: 12.5px; background: var(--bg-card); padding: 2px 6px; border-radius: 3px; color: var(--accent-3); }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 3px; background: var(--border); color: var(--text-dim); margin-left: 8px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+  table.stats { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  table.stats th, table.stats td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  table.stats th { background: var(--bg-card); color: var(--accent); }
+  footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 13px; }
+
+  @media print {
+    body { grid-template-columns: 1fr; background: white; color: black; }
+    aside, .diagram-tools, .diagram-hint { display: none; }
+    main { padding: 0; max-width: 100%; }
+    section { page-break-after: always; }
+    .diagram-wrapper { border: 1px solid #ccc; background: white; min-height: auto; }
+  }
+  @media (max-width: 1000px) {
+    body { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    main { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+<aside>
+  <h2>Índice</h2>
+  <nav>
+    <a href="#portada">Portada</a>
+    <a href="#casos-uso">Casos de uso</a>
+    <a href="#maestro">Mapa maestro</a>
+    <a href="#economia">Economía</a>
+    <a href="#capilla" class="sub">Capilla</a>
+    <a href="#conversion" class="sub">Conversión</a>
+    <a href="#inventario">Inventario · Equipo</a>
+    <a href="#crafteo" class="sub">Crafteo</a>
+    <a href="#skills">Habilidades</a>
+    <a href="#libros" class="sub">Libros</a>
+    <a href="#ascension" class="sub">Ascensión</a>
+    <a href="#stats">Stats · PowerScore</a>
+    <a href="#progresion">Progresión</a>
+    <a href="#recursos" class="sub">Recursos</a>
+    <a href="#combate">Combate</a>
+    <a href="#condiciones" class="sub">Condiciones</a>
+    <a href="#mundo">Mundo online</a>
+    <a href="#grupos" class="sub">Grupos</a>
+    <a href="#social">Social · Chat</a>
+    <a href="#hubs">Hubs SignalR</a>
+    <a href="#admin">Admin (REST)</a>
+    <a href="#persistencia">Persistencia BD</a>
+  </nav>
+</aside>
+
+<main>
+  <header class="hero" id="portada">
+    <h1>WAR Backend · Diagramas UML</h1>
+    <p>Diagrama de casos de uso + diagrama de clases (por subsistema) del backend de producción.</p>
+    <p>C# · .NET 8 · ASP.NET Core · SignalR · EF Core · PostgreSQL (opcional)</p>
+    <p>Rama: <code>Rubén</code> · Worktree: <code>confident-cartwright</code> · <b>Sin código demo</b></p>
+  </header>
+
+  <section>
+    <h3>Leyenda UML</h3>
+    <div class="legend">
+      <span class="legend-item"><span class="sym">+</span> público</span>
+      <span class="legend-item"><span class="sym">-</span> privado</span>
+      <span class="legend-item"><span class="sym">#</span> protegido</span>
+      <span class="legend-item"><span class="sym">~</span> internal</span>
+      <span class="legend-item"><span class="sym">&lt;|--</span> herencia</span>
+      <span class="legend-item"><span class="sym">*--</span> composición</span>
+      <span class="legend-item"><span class="sym">o--</span> agregación</span>
+      <span class="legend-item"><span class="sym">--&gt;</span> asociación / usa</span>
+      <span class="legend-item"><span class="sym">..&gt;</span> dependencia</span>
+      <span class="legend-item"><span class="sym">&lt;&lt;interface&gt;&gt;</span> interfaz</span>
+      <span class="legend-item"><span class="sym">&lt;&lt;enum&gt;&gt;</span> enumeración</span>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim)">
+      <b>🔍 Navegación en los diagramas:</b> usa la rueda del ratón para hacer <b>zoom</b>,
+      arrastra con el mouse para <b>desplazarte</b>, y pulsa <b>⛶ Pantalla completa</b> para maximizar.
+      Los controles circulares (+ / − / reset) también permiten ajustar el zoom.
+    </p>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- CASOS DE USO                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="casos-uso">
+    <h2>Diagrama de casos de uso</h2>
+    <p class="subtitle">Actores y casos de uso del backend de producción. El Jugador sólo INTERACTÚA con el sistema (no escribe sobre él). El Admin sí puede crear, modificar y consultar todo el contenido.</p>
+
+    <h3>Actores</h3>
+    <ul style="font-size:14px">
+      <li><b>Jugador (Unity Client)</b> — se conecta por SignalR (GameHub + ChatHub). Todas sus acciones son interacciones naturales dentro del mundo del juego. <b>No</b> puede resetear recursos, subir ascensión sin cobro, ni alterar valores del sistema.</li>
+      <li><b>Admin</b> — opera vía REST con autenticación. Puede crear/editar/publicar/archivar contenido del catálogo y observar todos los subsistemas.</li>
+      <li><b>Sistema</b> — procesos automáticos internos: <code>WorldTickService</code> (tick 1s), rollover de cuotas de conversión, limpieza de jugadores inactivos, DoT/cooldowns, auditoría continua.</li>
+    </ul>
+
+    <h3>Diagrama completo</h3>
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart LR
+    %% ── Actores ─────────────────────────────────────────
+    Player((👤 Jugador))
+    Admin((👨‍💼 Admin))
+    System(((⚙️ Sistema)))
+
+    %% ── Jugador: Conexión y consultas ────────────────────
+    subgraph CX["🌍 Mundo · Conexión"]
+        UC_Join[Unirse al mundo]
+        UC_Leave[Salir del mundo]
+        UC_MyState[Consultar mi estado]
+        UC_World[Ver snapshot del mundo]
+        UC_Nearby[Ver jugadores cercanos]
+        UC_Profile[Ver perfil público]
+    end
+
+    %% ── Jugador: Movimiento ──────────────────────────────
+    subgraph MV["🏃 Movimiento"]
+        UC_Move[Mover dirección]
+        UC_MoveTo[Mover a coordenada]
+    end
+
+    %% ── Jugador: Combate ─────────────────────────────────
+    subgraph CO["⚔️ Combate"]
+        UC_Basic[Atacar básico]
+        UC_Skill[Usar habilidad]
+        UC_Ult[Usar definitiva]
+    end
+
+    %% ── Jugador: Habilidades ─────────────────────────────
+    subgraph SK["🌟 Habilidades"]
+        UC_SkillPreview[Ver coste de ascensión]
+        UC_Ascend[Ascender habilidad]
+    end
+
+    %% ── Jugador: Wallet y Capilla ────────────────────────
+    subgraph EC["🪙 Economía"]
+        UC_Wallet[Consultar wallet]
+        UC_WalletHist[Ver historial de transacciones]
+        UC_Convert[Convertir moneda]
+        UC_Quotas[Ver cuotas de conversión]
+        UC_ChapelState[Ver estado Capilla]
+        UC_ChapelUp[Subir Capilla]
+    end
+
+    %% ── Jugador: Inventario y Crafteo ────────────────────
+    subgraph IV["🎒 Inventario · Equipo"]
+        UC_Inv[Consultar inventario]
+        UC_ExpandInv[Expandir inventario]
+        UC_Equip[Equipar ítem]
+        UC_Unequip[Desequipar ítem]
+        UC_CraftPreview[Preview coste crafteo]
+        UC_Develop[Desarrollar ítem]
+        UC_TierUp[Tier-up de equipo]
+    end
+
+    %% ── Jugador: Social ──────────────────────────────────
+    subgraph SO["🤝 Social"]
+        UC_FriendReq[Solicitud de amistad]
+        UC_FriendAccept[Aceptar amistad]
+        UC_FriendReject[Rechazar amistad]
+        UC_Block[Bloquear]
+        UC_Unblock[Desbloquear]
+        UC_FriendList[Listar amigos]
+        UC_BlockList[Listar bloqueos]
+    end
+
+    %% ── Jugador: Chat ────────────────────────────────────
+    subgraph CH["💬 Chat"]
+        UC_Chat[Chat local por proximidad]
+    end
+
+    %% ── Jugador: Grupos ──────────────────────────────────
+    subgraph GR["👥 Grupos"]
+        UC_GrCreate[Crear grupo]
+        UC_GrInvite[Invitar]
+        UC_GrAccept[Aceptar invitación]
+        UC_GrDecline[Rechazar invitación]
+        UC_GrLeave[Salir del grupo]
+        UC_GrKick[Expulsar miembro]
+    end
+
+    %% ── Admin: Gestión transversal ───────────────────────
+    subgraph AD_SK["🛠️ Admin · Habilidades"]
+        UC_AdSkList[Listar todas las skills]
+        UC_AdSkImport[Importar programada a BD]
+        UC_AdSkCreate[Crear nueva skill]
+        UC_AdSkEdit[Editar draft]
+        UC_AdSkPublish[Publicar skill]
+        UC_AdSkArchive[Archivar skill]
+    end
+
+    subgraph AD_EC["🛠️ Admin · Economía"]
+        UC_AdWalletView[Auditar wallets de jugadores]
+        UC_AdWalletAdjust[Ajustar saldo AdminGrant/Deduct]
+        UC_AdChapelView[Ver estado Capilla de cualquier jugador]
+        UC_AdChapelSet[Forzar nivel de Capilla]
+        UC_AdConvRules[Modificar reglas de conversión]
+    end
+
+    subgraph AD_IV["🛠️ Admin · Contenido del juego"]
+        UC_AdEqCat[Gestionar catálogo de equipo]
+        UC_AdBookCat[Gestionar catálogo de libros]
+        UC_AdMatCat[Gestionar catálogo de materiales]
+        UC_AdStatCat[Gestionar catálogo de stats]
+        UC_AdGrant[Otorgar ítems a jugador]
+    end
+
+    subgraph AD_PRO["🛠️ Admin · Personajes · Progresión"]
+        UC_AdCharView[Ver personaje persistido]
+        UC_AdCharSearch[Buscar personajes]
+        UC_AdGrantXp[Otorgar experiencia]
+        UC_AdSetLevel[Forzar nivel]
+        UC_AdMigrate[Auditar migraciones]
+    end
+
+    subgraph AD_SO["🛠️ Admin · Moderación"]
+        UC_AdSocialView[Auditar relaciones sociales]
+        UC_AdChatLog[Auditar chat]
+        UC_AdBanUser[Sancionar usuario]
+        UC_AdUnbanUser[Revertir sanción]
+    end
+
+    subgraph AD_OBS["🛠️ Admin · Observabilidad"]
+        UC_AdWorldMonitor[Monitor del mundo online]
+        UC_AdAuditLogs[Ver logs de auditoría]
+        UC_AdCombatLogs[Ver logs de combate]
+    end
+
+    %% ── Sistema (background) ─────────────────────────────
+    subgraph SYS["⚙️ Procesos automáticos"]
+        UC_Tick[Tick del mundo 1s]
+        UC_RollQ[Rollover de cuotas]
+        UC_CleanIdle[Limpiar jugadores inactivos]
+        UC_DotCd[Aplicar DoT + cooldowns]
+        UC_Audit[Append a audit log]
+    end
+
+    %% ── Jugador → UCs ────────────────────────────────────
+    Player --> UC_Join
+    Player --> UC_Leave
+    Player --> UC_MyState
+    Player --> UC_World
+    Player --> UC_Nearby
+    Player --> UC_Profile
+    Player --> UC_Move
+    Player --> UC_MoveTo
+    Player --> UC_Basic
+    Player --> UC_Skill
+    Player --> UC_Ult
+    Player --> UC_SkillPreview
+    Player --> UC_Ascend
+    Player --> UC_Wallet
+    Player --> UC_WalletHist
+    Player --> UC_Convert
+    Player --> UC_Quotas
+    Player --> UC_ChapelState
+    Player --> UC_ChapelUp
+    Player --> UC_Inv
+    Player --> UC_ExpandInv
+    Player --> UC_Equip
+    Player --> UC_Unequip
+    Player --> UC_CraftPreview
+    Player --> UC_Develop
+    Player --> UC_TierUp
+    Player --> UC_FriendReq
+    Player --> UC_FriendAccept
+    Player --> UC_FriendReject
+    Player --> UC_Block
+    Player --> UC_Unblock
+    Player --> UC_FriendList
+    Player --> UC_BlockList
+    Player --> UC_Chat
+    Player --> UC_GrCreate
+    Player --> UC_GrInvite
+    Player --> UC_GrAccept
+    Player --> UC_GrDecline
+    Player --> UC_GrLeave
+    Player --> UC_GrKick
+
+    %% ── Admin → UCs ──────────────────────────────────────
+    Admin --> UC_AdSkList
+    Admin --> UC_AdSkImport
+    Admin --> UC_AdSkCreate
+    Admin --> UC_AdSkEdit
+    Admin --> UC_AdSkPublish
+    Admin --> UC_AdSkArchive
+    Admin --> UC_AdWalletView
+    Admin --> UC_AdWalletAdjust
+    Admin --> UC_AdChapelView
+    Admin --> UC_AdChapelSet
+    Admin --> UC_AdConvRules
+    Admin --> UC_AdEqCat
+    Admin --> UC_AdBookCat
+    Admin --> UC_AdMatCat
+    Admin --> UC_AdStatCat
+    Admin --> UC_AdGrant
+    Admin --> UC_AdCharView
+    Admin --> UC_AdCharSearch
+    Admin --> UC_AdGrantXp
+    Admin --> UC_AdSetLevel
+    Admin --> UC_AdMigrate
+    Admin --> UC_AdSocialView
+    Admin --> UC_AdChatLog
+    Admin --> UC_AdBanUser
+    Admin --> UC_AdUnbanUser
+    Admin --> UC_AdWorldMonitor
+    Admin --> UC_AdAuditLogs
+    Admin --> UC_AdCombatLogs
+
+    %% ── Sistema → UCs ────────────────────────────────────
+    System --> UC_Tick
+    System --> UC_RollQ
+    System --> UC_CleanIdle
+    System --> UC_DotCd
+    System --> UC_Audit
+
+    %% ── Estilos ─────────────────────────────────────────
+    classDef actor fill:#58a6ff,stroke:#1f6feb,color:#fff,stroke-width:2px
+    classDef adminActor fill:#a371f7,stroke:#7c3aed,color:#fff,stroke-width:2px
+    classDef sysActor fill:#3fb950,stroke:#238636,color:#fff
+    class Player actor
+    class Admin adminActor
+    class System sysActor
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <h3>Inclusiones / extensiones clave</h3>
+    <ul style="font-size:14px">
+      <li><b>UC_Ascend</b> «incluye» <i>cobrar libros específicos</i> + <i>cobrar moneda</i> + <i>cobrar energía</i> (el jugador nunca "sube ascensión" sin pagar).</li>
+      <li><b>UC_Convert</b> «incluye» <i>chequear cuotas Capilla</i> + <i>debit origen</i> + <i>credit destino</i>; rollback atómico si algo falla.</li>
+      <li><b>UC_Skill / UC_Basic</b> «incluye» <i>pipeline de validación</i> (lockout → CC → silence → GCD → cast-time → coste → cooldown).</li>
+      <li><b>UC_Chat</b> «incluye» <i>validación de proximidad</i>; solo lo reciben jugadores cercanos al emisor.</li>
+      <li><b>UC_TierUp</b> «incluye» <i>consumir pieza B</i> + <i>cobrar moneda</i> + <i>append a audit log</i>.</li>
+      <li><b>UC_ExpandInv / UC_ChapelUp</b> «incluye» <i>cobro y auditoría</i>.</li>
+      <li><b>UC_AdWalletAdjust</b> siempre deja huella con fuente <code>AdminGrant</code> o <code>AdminDeduct</code> en el audit log.</li>
+    </ul>
+
+    <h3>Lo que el Jugador NO puede hacer (por diseño de producción)</h3>
+    <ul style="font-size:14px">
+      <li>❌ Resetear su HP / Mana / Cooldowns / Conditions.</li>
+      <li>❌ Subir nivel de ascensión o skill sin cobro correspondiente.</li>
+      <li>❌ Asignar saldo a su wallet directamente.</li>
+      <li>❌ Alterar valores del catálogo (skills, equipo, libros, materiales, stats).</li>
+      <li>❌ Cambiar su nivel, XP, clase u otra propiedad estructural.</li>
+      <li>❌ Modificar permisos de la Capilla de otros jugadores.</li>
+      <li>✅ <b>Solo interactúa</b> con el juego mediante las acciones naturales listadas arriba.</li>
+    </ul>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- MAPA MAESTRO                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="maestro">
+    <h2>Mapa maestro · relaciones entre subsistemas</h2>
+    <p class="subtitle">Vista panorámica de dependencias entre subsistemas. El GameHub es el único punto de entrada para el Jugador; los Controllers REST son la superficie del Admin.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    Hub["🎮 GameHub · SignalR<br/>(entrada del Jugador)"]
+    ChatHub["💬 ChatHub · SignalR"]
+    Rest["🛠️ REST Controllers<br/>(entrada del Admin)"]
+
+    subgraph World["🌍 Mundo online"]
+        GWS[GameWorldService]
+        OP[OnlinePlayer]
+        TickS[WorldTickService]
+        GrpS[GroupService]
+        ProxP[ProximityProvider]
+    end
+
+    subgraph Combat["⚔️ Combate"]
+        OCS[OnlineCombatService]
+        CVP[CombatValidationPipeline]
+        CFC[CombatFormulaConstants]
+        CER[CombatEventResolver]
+        CondCat[Condition Catalog<br/>+ Interactions]
+    end
+
+    subgraph SkillsD["🌟 Habilidades"]
+        SCR[SkillCatalogRegistry]
+        SRCP[RuntimeCatalogProvider]
+        SAS[SkillAscensionService]
+        SBC[SkillBookCatalog]
+        SACT[SkillAscensionCostTable]
+    end
+
+    subgraph Eco["🪙 Economía"]
+        PWS[PlayerWalletService]
+        PCS[PlayerChapelService]
+        CCS[CurrencyConversionService]
+        CQT[ConversionQuotaTracker]
+        WAL[WalletAuditLog]
+        EC[EconomyChapel]
+        ECR[EconomyChapelRules]
+    end
+
+    subgraph Inv["🎒 Inventario · Equipo"]
+        PI[PlayerInventory]
+        EqCat[EquipmentCatalog]
+        EqSvc[EquipmentStatService]
+        CS[CraftingService]
+        CCC[CraftingCostCalculator]
+        IECC[InventoryExpansionCostCalculator]
+    end
+
+    subgraph Stats["📊 Stats · PowerScore"]
+        StCat[StatCatalog]
+        SC[StatsCalculator]
+        FS[FinalStats]
+        PSC[PowerScoreCalculator]
+    end
+
+    subgraph Prog["📈 Progresión · Personajes"]
+        CLP[CharLevelProgression]
+        EXP[ExperienceService]
+        CFSB[CharFinalStatsBuilder]
+        CSF[CharSnapshotFactory]
+        CRes[CharacterResources]
+    end
+
+    subgraph Social["🤝 Social"]
+        SRS[SocialRelationshipService]
+        CRS[ChatRelayService]
+        CRL[ChatRateLimiter]
+        PVS[ProximityValidationService]
+        PPS[PublicProfileService]
+    end
+
+    subgraph Persist["💾 Persistencia EF Core"]
+        DB[WarDbContext]
+    end
+
+    Hub --> World
+    Hub --> Combat
+    Hub --> SkillsD
+    Hub --> Eco
+    Hub --> Inv
+    Hub --> Social
+    ChatHub --> CRS
+    Rest --> SkillsD
+    Rest --> Persist
+
+    GWS --> OP
+    GWS --> ProxP
+    TickS --> GWS
+    GrpS --> GWS
+
+    OCS --> CVP
+    OCS --> CFC
+    OCS --> CER
+    CER --> CondCat
+    OCS --> FS
+    OCS --> OP
+    CVP --> OP
+
+    SAS --> SBC
+    SAS --> SACT
+    SAS --> PWS
+    SAS --> PI
+    SACT --> SBC
+    SRCP --> SCR
+
+    PWS --> PCS
+    PWS --> WAL
+    CCS --> PWS
+    CCS --> PCS
+    CCS --> CQT
+    PCS --> EC
+    EC --> ECR
+
+    CS --> PI
+    CS --> PWS
+    CS --> CCC
+    EqSvc --> EqCat
+    EqSvc --> PI
+    OP --> PI
+
+    CFSB --> SC
+    CFSB --> StCat
+    SC --> FS
+    PSC --> FS
+
+    EXP --> CLP
+    CSF --> CFSB
+    CSF --> PSC
+
+    CRS --> PVS
+    CRS --> CRL
+    CRS --> SRS
+    PPS --> SRS
+    SRS --> DB
+
+    CSF -.-> DB
+
+    classDef hub fill:#db61a2,stroke:#bf3989,color:#fff,stroke-width:2px
+    classDef rest fill:#a371f7,stroke:#7c3aed,color:#fff,stroke-width:2px
+    classDef eco fill:#d29922,stroke:#9e6a03,color:#fff
+    classDef combat fill:#f78166,stroke:#bd561d,color:#fff
+    classDef skill fill:#8957e5,stroke:#6639ba,color:#fff
+    classDef inv fill:#3fb950,stroke:#238636,color:#fff
+    classDef world fill:#58a6ff,stroke:#1f6feb,color:#fff
+    classDef stat fill:#ff7b72,stroke:#cf222e,color:#fff
+    classDef prog fill:#fcb32c,stroke:#bf8700,color:#111
+    classDef soc fill:#9ccefc,stroke:#58a6ff,color:#111
+    classDef db fill:#6e7681,stroke:#484f58,color:#fff
+
+    class Hub,ChatHub hub
+    class Rest rest
+    class PWS,PCS,CCS,CQT,WAL,EC,ECR eco
+    class OCS,CVP,CFC,CER,CondCat combat
+    class SCR,SRCP,SAS,SBC,SACT skill
+    class PI,EqCat,EqSvc,CS,CCC,IECC inv
+    class GWS,OP,TickS,GrpS,ProxP world
+    class StCat,SC,FS,PSC stat
+    class CLP,EXP,CFSB,CSF,CRes prog
+    class SRS,CRS,CRL,PVS,PPS soc
+    class DB db
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ECONOMÍA                                                       -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="economia">
+    <h2>Subsistema · Economía</h2>
+    <p class="subtitle">Wallet multi-moneda con auditoría estricta · caps dinámicos vía <code>IWalletCapProvider</code>.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class CurrencyType {
+        &lt;&lt;enumeration&gt;&gt;
+        Copper
+        Silver
+        Gold
+        Energy
+    }
+
+    class TransactionDirection {
+        &lt;&lt;enumeration&gt;&gt;
+        Credit
+        Debit
+    }
+
+    class TransactionSource {
+        &lt;&lt;enumeration&gt;&gt;
+        MobDrop
+        QuestReward
+        EventReward
+        AchievementReward
+        ItemSale
+        MailAttachment
+        RefundCancelled
+        AdminGrant
+        CurrencyConversionIn
+        Meditation
+        GatheringPlants
+        MiningMinerals
+        CraftingTierUp
+        CraftingDevelopment
+        InventoryExpansion
+        SkillAscension
+        ShopPurchase
+        RepairFee
+        MailCost
+        EnergyConsumed
+        AdminDeduct
+        CurrencyConversionOut
+        ChapelUpgrade
+        BodyTraining
+        SoulTraining
+        SpiritTraining
+    }
+
+    class CurrencyDefinitions {
+        &lt;&lt;static&gt;&gt;
+        +CopperPerSilverConversion long
+        +SilverPerGoldConversion long
+        +AbsoluteMaxCopper long
+        +AbsoluteMaxSilver long
+        +AbsoluteMaxGold long
+        +AbsoluteMaxEnergy long
+    }
+
+    class WalletTransaction {
+        &lt;&lt;record&gt;&gt;
+        +Id Guid
+        +Timestamp DateTime
+        +PlayerId Guid
+        +Currency CurrencyType
+        +Direction TransactionDirection
+        +Amount long
+        +Source TransactionSource
+        +Description string
+        +BalanceBefore long
+        +BalanceAfter long
+        +RelatedEntityId Guid?
+    }
+
+    class CurrencyCost {
+        &lt;&lt;record&gt;&gt;
+        +Copper long
+        +Silver long
+        +Gold long
+        +Energy long
+        +IsZero bool
+        +Add(other) CurrencyCost
+        +EnumerateNonZero() IEnumerable
+    }
+
+    class WalletOperationResult {
+        &lt;&lt;record&gt;&gt;
+        +Success bool
+        +ErrorCode string?
+        +ErrorMessage string?
+        +Transaction WalletTransaction?
+    }
+
+    class WalletMultiOperationResult {
+        &lt;&lt;record&gt;&gt;
+        +Success bool
+        +ErrorCode string?
+        +ErrorMessage string?
+        +Transactions IReadOnlyList~WalletTransaction~
+    }
+
+    class IWalletCapProvider {
+        &lt;&lt;interface&gt;&gt;
+        +GetPossessionCap(playerId, currency) long
+    }
+
+    class AbsoluteCapProvider {
+        +GetPossessionCap(playerId, currency) long
+    }
+
+    class PlayerWallet {
+        +PlayerId Guid
+        +Copper long
+        +Silver long
+        +Gold long
+        +Energy long
+        +GetBalance(currency) long
+        +GetCap(currency) long
+        +CanAfford(cost) bool
+        +Credit(currency, amount, source, desc, relId) WalletOperationResult
+        +Debit(currency, amount, source, desc, relId) WalletOperationResult
+        +SpendMulti(cost, source, desc, relId) WalletMultiOperationResult
+    }
+
+    class PlayerWalletService {
+        +GetOrCreate(playerId) PlayerWallet
+        +Detach(playerId) void
+        +Credit(...) WalletOperationResult
+        +Debit(...) WalletOperationResult
+        +Spend(...) WalletMultiOperationResult
+        +GetHistory(playerId, limit) IReadOnlyList
+    }
+
+    class WalletAuditLog {
+        +Record(tx) void
+        +RecordMany(txs) void
+        +GetHistoryForPlayer(playerId, limit) IReadOnlyList
+        +Count int
+    }
+
+    IWalletCapProvider <|.. AbsoluteCapProvider
+    PlayerWallet --> IWalletCapProvider : usa
+    PlayerWallet --> WalletTransaction : emite
+    PlayerWallet --> CurrencyType : usa
+    PlayerWallet --> CurrencyCost : acepta
+    PlayerWallet --> TransactionSource : valida
+    WalletTransaction --> CurrencyType
+    WalletTransaction --> TransactionDirection
+    WalletTransaction --> TransactionSource
+    PlayerWalletService *-- PlayerWallet : gestiona
+    PlayerWalletService --> WalletAuditLog : registra
+    PlayerWalletService --> IWalletCapProvider : inyecta
+    WalletAuditLog o-- WalletTransaction : almacena
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <!-- ── Capilla ───────────────────────────────── -->
+    <h3 id="capilla">Capilla de Economía</h3>
+    <p class="subtitle">10 niveles · se desbloquea 1 cada 8 niveles de personaje · rige caps de posesión y cuotas de conversión.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class EconomyChapelRules {
+        &lt;&lt;static&gt;&gt;
+        +MinLevel int
+        +MaxLevel int
+        +CharacterLevelsPerChapelLevel int
+        +CharacterLevelRequiredFor(level) int
+        +GetPossessionCap(level, currency) long
+        +GetConversionLimits(level) ChapelConversionLimits
+        +GetPossessionCaps(level) ChapelPossessionCaps
+        +CanUpgrade(curLevel, charLevel) bool
+    }
+
+    class ChapelConversionLimits {
+        &lt;&lt;record&gt;&gt;
+        +ChapelLevel int
+        +SilverDaily long
+        +SilverWeekly long
+        +SilverMonthly long
+        +GoldDaily long
+        +GoldWeekly long
+        +GoldMonthly long
+    }
+
+    class ChapelPossessionCaps {
+        &lt;&lt;record&gt;&gt;
+        +ChapelLevel int
+        +Copper long
+        +Silver long
+        +Gold long
+        +Energy long
+    }
+
+    class EconomyChapel {
+        +PlayerId Guid
+        +Level int
+        +LastUpgradedAt DateTime?
+        +GetPossessionCap(currency) long
+        +GetPossessionCaps() ChapelPossessionCaps
+        +GetConversionLimits() ChapelConversionLimits
+        +TryUpgrade(charLevel) bool
+    }
+
+    class PlayerChapelService {
+        +GetOrCreate(playerId) EconomyChapel
+        +GetLevel(playerId) int
+        +GetPossessionCaps(playerId) ChapelPossessionCaps
+        +GetConversionLimits(playerId) ChapelConversionLimits
+        +GetPossessionCap(playerId, currency) long
+        +TryUpgrade(playerId, charLevel) ChapelUpgradeResult
+    }
+
+    class ChapelUpgradeResult {
+        &lt;&lt;record&gt;&gt;
+        +Success bool
+        +ErrorCode string?
+        +ErrorMessage string?
+        +PreviousLevel int
+        +NewLevel int
+    }
+
+    class IWalletCapProvider {
+        &lt;&lt;interface&gt;&gt;
+    }
+
+    IWalletCapProvider <|.. PlayerChapelService
+    PlayerChapelService *-- EconomyChapel
+    EconomyChapel ..> EconomyChapelRules : delega
+    EconomyChapelRules --> ChapelConversionLimits
+    EconomyChapelRules --> ChapelPossessionCaps
+    PlayerChapelService --> ChapelUpgradeResult
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <!-- ── Conversión ────────────────────────────── -->
+    <h3 id="conversion">Conversión de moneda · cuotas</h3>
+    <p class="subtitle">Orquestador atómico con rollback · cuotas rolling día/semana/mes (no acumulables).</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class CurrencyConversionService {
+        +Convert(playerId, from, to, amount) CurrencyConversionResult
+        +GetQuotaSnapshot(playerId) QuotaSnapshot
+    }
+
+    class CurrencyConversionResult {
+        &lt;&lt;record&gt;&gt;
+        +Success bool
+        +ErrorCode string?
+        +ErrorMessage string?
+        +From CurrencyType
+        +To CurrencyType
+        +Consumed long
+        +Created long
+        +DebitTransaction WalletTransaction?
+        +CreditTransaction WalletTransaction?
+    }
+
+    class ConversionQuotaTracker {
+        +GetUsage(playerId, now) QuotaSnapshot
+        +CheckAllowance(playerId, to, amount, perDay, perWeek, perMonth) QuotaCheckResult
+        +RecordConversion(playerId, to, amount, now) void
+    }
+
+    class QuotaSnapshot {
+        &lt;&lt;record&gt;&gt;
+        +SilverToday long
+        +SilverThisWeek long
+        +SilverThisMonth long
+        +GoldToday long
+        +GoldThisWeek long
+        +GoldThisMonth long
+    }
+
+    class QuotaCheckResult {
+        &lt;&lt;record&gt;&gt;
+        +Allowed bool
+        +Reason string?
+    }
+
+    CurrencyConversionService --> PlayerWalletService : cobra/acredita
+    CurrencyConversionService --> PlayerChapelService : consulta límites
+    CurrencyConversionService --> ConversionQuotaTracker : chequea/registra
+    CurrencyConversionService --> CurrencyConversionResult
+    ConversionQuotaTracker --> QuotaSnapshot
+    ConversionQuotaTracker --> QuotaCheckResult
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- INVENTARIO · EQUIPO · CRAFTEO                                  -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="inventario">
+    <h2>Subsistema · Inventario · Equipo</h2>
+    <p class="subtitle">Inventario server-authoritative de 80 slots expandible a 280 · equipamiento con tier/dev/rareza · apilado por tipo.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class EquipmentSlot {
+        &lt;&lt;enumeration&gt;&gt;
+        Weapon
+        Helmet
+        Chestplate
+        Boots
+        Bracers
+        Gloves
+        Earrings
+        Ring
+        Necklace
+    }
+
+    class EquipmentRarity {
+        &lt;&lt;enumeration&gt;&gt;
+        Common
+        Special
+        Epic
+        Legendary
+    }
+
+    class EquipmentVariant {
+        &lt;&lt;enumeration&gt;&gt;
+        Offensive
+        Defensive
+        Hybrid
+    }
+
+    class InventoryItemType {
+        &lt;&lt;enumeration&gt;&gt;
+        Equipment
+        Gem
+        Resource
+        Special
+    }
+
+    class EquipmentDefinition {
+        &lt;&lt;record&gt;&gt;
+        +Id string
+        +Name string
+        +Description string
+        +Slot EquipmentSlot
+        +Rarity EquipmentRarity
+        +Variant EquipmentVariant
+        +RequiredClass ClassType?
+        +BaseStats IReadOnlyList
+    }
+
+    class EquipmentStatGrant {
+        &lt;&lt;record&gt;&gt;
+        +Stat StatType
+        +BaseValue decimal
+        +IsPercentage bool
+    }
+
+    class EquipmentInstance {
+        +DefinitionId string
+        +Slot EquipmentSlot
+        +Tier int
+        +DevelopmentLevel int
+        +InstanceId string
+    }
+
+    class InventoryItem {
+        +ItemId string
+        +ItemType InventoryItemType
+        +DefinitionId string
+        +Quantity int
+        +SlotIndex int
+        +Tier int
+        +DevelopmentLevel int
+        +IsEquipped bool
+        +EquippedSlot EquipmentSlot?
+        +CreatedAt DateTime
+        +LastModifiedAt DateTime
+    }
+
+    class PlayerInventory {
+        +Capacity int
+        +ExpansionsPurchased int
+        +AllItems IReadOnlyCollection
+        +UsedSlots int
+        +FreeSlots int
+        +Expand() bool
+        +GetById(id) InventoryItem?
+        +GetBySlot(idx) InventoryItem?
+        +GetEquippedInSlot(slot) InventoryItem?
+        +GetAllEquipped() IReadOnlyList
+        +FindExistingStack(defId, type) InventoryItem?
+        +AddItem(item) InventoryItem?
+        +RemoveItem(id, qty) bool
+        +ForceRemoveItem(id) bool
+        +EquipItem(id, slot) bool
+        +UnequipItem(id) bool
+        +SwapEquipment(id, slot) bool
+    }
+
+    class InventoryStackingRules {
+        &lt;&lt;static&gt;&gt;
+        +IsStackable(type) bool
+        +MaxStackSize(type) int
+    }
+
+    class EquipmentCatalog {
+        &lt;&lt;static&gt;&gt;
+        +All IReadOnlyDictionary
+        +Get(id) EquipmentDefinition
+        +GetForClass(class) IReadOnlyList
+    }
+
+    class EquipmentFormulas {
+        &lt;&lt;static&gt;&gt;
+        +CalculateStatValue(base, tier, dev) decimal
+        +GetTierMultiplier(tier) decimal
+        +GetDevelopmentMultiplier(dev) decimal
+        +GetRarityMultiplier(rarity) decimal
+    }
+
+    class EquipmentStatService {
+        +CalculateInstanceStats(inst) IReadOnlyList
+        +CalculateEquippedStats(inv) Dictionary
+        +BuildLoadoutDto(inv) EquipmentLoadoutDto
+        +CompareInstances(cur, cand) IReadOnlyList
+    }
+
+    EquipmentDefinition *-- EquipmentStatGrant
+    EquipmentDefinition --> EquipmentSlot
+    EquipmentDefinition --> EquipmentRarity
+    EquipmentDefinition --> EquipmentVariant
+    EquipmentInstance --> EquipmentSlot
+    InventoryItem --> InventoryItemType
+    InventoryItem --> EquipmentSlot
+    PlayerInventory *-- InventoryItem
+    PlayerInventory ..> InventoryStackingRules
+    PlayerInventory ..> EquipmentCatalog
+    EquipmentCatalog o-- EquipmentDefinition : 189 instancias
+    EquipmentStatService --> PlayerInventory
+    EquipmentStatService --> EquipmentCatalog
+    EquipmentStatService ..> EquipmentFormulas
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <!-- ── Crafteo ────────────────────────────────── -->
+    <h3 id="crafteo">Crafteo · costes y auditoría</h3>
+    <p class="subtitle">Desarrollo +1 · Tier-up 2→1 atómico · cobro vía wallet · audit trail por operación.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class CraftingService {
+        +AuditLog IReadOnlyList
+        +Develop(inv, itemId, playerId) CraftResult
+        +CraftTierUp(inv, idA, idB, playerId) CraftResult
+        +GetPlayerAuditLog(playerId, max) IReadOnlyList
+    }
+
+    class CraftResult {
+        &lt;&lt;record&gt;&gt;
+        +IsSuccess bool
+        +OutputItemId string?
+        +Message string
+        +ErrorCode string?
+    }
+
+    class CraftOperation {
+        &lt;&lt;enumeration&gt;&gt;
+        Develop
+        TierUp
+    }
+
+    class CraftAuditEntry {
+        +PlayerId string
+        +Operation CraftOperation
+        +Timestamp DateTime
+        +InputItemIds IReadOnlyList
+        +OutputItemId string
+        +Details string
+    }
+
+    class CraftingCostCalculator {
+        &lt;&lt;static&gt;&gt;
+        +ComputeTierUpCost(targetTier, rarity) CurrencyCost
+        +ComputeDevelopmentCost(tier, rarity, curDev) CurrencyCost
+        +BuildPreview(tier, rarity, curDev) CraftingCostPreview
+    }
+
+    class CraftingCostPreview {
+        &lt;&lt;record&gt;&gt;
+        +Tier int
+        +Rarity EquipmentRarity
+        +CurrentDevelopmentLevel int
+        +NextDevelopmentCost CurrencyCost?
+        +TierUpCost CurrencyCost?
+    }
+
+    class InventoryExpansionCostCalculator {
+        &lt;&lt;static&gt;&gt;
+        +InitialCapacity int
+        +MaxCapacity int
+        +ExpansionBatchSize int
+        +MaxExpansions int
+        +GetNextExpansionCost(purchased) CurrencyCost
+        +GetCapacityAfter(purchased) int
+        +CanExpandFurther(purchased) bool
+    }
+
+    CraftingService *-- CraftAuditEntry
+    CraftingService --> CraftResult
+    CraftAuditEntry --> CraftOperation
+    CraftingCostCalculator --> CraftingCostPreview
+    CraftingCostCalculator ..> CurrencyCost
+    InventoryExpansionCostCalculator ..> CurrencyCost
+    CraftingService ..> CraftingCostCalculator
+    CraftingService ..> PlayerInventory
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- HABILIDADES                                                    -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="skills">
+    <h2>Subsistema · Habilidades</h2>
+    <p class="subtitle">52 habilidades (4 clases × 13 slots) · ascensión 0→10 · libros específicos por calidad · catálogo inmutable.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class ClassType {
+        &lt;&lt;enumeration&gt;&gt;
+        Sorcerer
+        Juramentada
+        Lancero
+        Bruiser
+    }
+
+    class SkillSlot {
+        &lt;&lt;enumeration&gt;&gt;
+        Slot01..Slot13
+    }
+
+    class SkillActionType {
+        &lt;&lt;enumeration&gt;&gt;
+        Damage
+        Heal
+        Utility
+    }
+
+    class SkillDamageType {
+        &lt;&lt;enumeration&gt;&gt;
+        Physical
+        Magical
+        True
+    }
+
+    class SkillScalingType {
+        &lt;&lt;enumeration&gt;&gt;
+        FixedOnly
+        PhysicalAttack
+        MagicAttack
+        TargetMissingHp
+    }
+
+    class SkillTargetingPattern {
+        &lt;&lt;enumeration&gt;&gt;
+        Self
+        SingleTarget
+        Area
+        Line
+        Cone
+        GroundPoint
+    }
+
+    class SkillTargetAffinity {
+        &lt;&lt;enumeration&gt;&gt;
+        Self
+        Ally
+        Enemy
+        Any
+    }
+
+    class SkillDefinition {
+        &lt;&lt;record&gt;&gt;
+        +Id string
+        +Name string
+        +Description string
+        +ClassType ClassType
+        +Slot SkillSlot
+        +IsUltimate bool
+        +UnlockLevel int
+        +BaseTuning SkillTuningSnapshot
+        +AscensionOverrides IReadOnlyDict
+    }
+
+    class SkillTuningSnapshot {
+        &lt;&lt;record&gt;&gt;
+        +Action SkillActionDefinition
+        +Targeting SkillTargetingProfile
+        +Cadence SkillCadenceProfile
+        +ResourceCosts IReadOnlyList
+        +Effects IReadOnlyList
+    }
+
+    class SkillActionDefinition {
+        &lt;&lt;record&gt;&gt;
+        +ActionType SkillActionType
+        +MagnitudeProfile SkillMagnitudeProfile
+        +DamageType SkillDamageType?
+        +TargetResourceType CharacterResourceType
+        +RequiresHitCheck bool
+        +CanCrit bool
+    }
+
+    class SkillMagnitudeProfile {
+        &lt;&lt;record&gt;&gt;
+        +BaseMagnitude decimal
+        +ScalingType SkillScalingType
+        +ScalingCoefficient decimal
+        +SecondaryScalingType SkillScalingType
+        +SecondaryScalingCoefficient decimal
+    }
+
+    class SkillCadenceProfile {
+        &lt;&lt;record&gt;&gt;
+        +BaseCooldownSeconds decimal
+        +AffectedByCooldownReduction bool
+        +AffectedBySkillRecoveryRate bool
+        +CastTimeSeconds decimal
+    }
+
+    class SkillTargetingProfile {
+        &lt;&lt;record&gt;&gt;
+        +Pattern SkillTargetingPattern
+        +Affinity SkillTargetAffinity
+        +BaseRangeUnits decimal
+        +AreaRadiusUnits decimal?
+        +MaxTargets int
+    }
+
+    class SkillAscensionOverrides {
+        &lt;&lt;record&gt;&gt;
+        +AscensionLevel int
+        +Action SkillActionDefinition?
+        +MagnitudeProfile SkillMagnitudeProfile?
+        +AddedEffects IReadOnlyList
+        +RemovedEffectKeys IReadOnlyList
+    }
+
+    class SkillCatalog {
+        +ClassCatalogs IReadOnlyList
+        +Validate() IEnumerable
+    }
+
+    class ClassSkillCatalog {
+        +ClassType ClassType
+        +Skills IReadOnlyList
+    }
+
+    class SkillCatalogRegistry {
+        &lt;&lt;static&gt;&gt;
+        +Current SkillCatalog
+        +GetRequired(skillId) SkillDefinition
+    }
+
+    class CharacterSkillProgress {
+        +SkillId string
+        +Unlocked bool
+        +AscensionLevel int
+    }
+
+    SkillDefinition --> ClassType
+    SkillDefinition --> SkillSlot
+    SkillDefinition *-- SkillTuningSnapshot
+    SkillDefinition o-- SkillAscensionOverrides
+    SkillTuningSnapshot *-- SkillActionDefinition
+    SkillTuningSnapshot *-- SkillCadenceProfile
+    SkillTuningSnapshot *-- SkillTargetingProfile
+    SkillActionDefinition *-- SkillMagnitudeProfile
+    SkillActionDefinition --> SkillActionType
+    SkillActionDefinition --> SkillDamageType
+    SkillMagnitudeProfile --> SkillScalingType
+    SkillTargetingProfile --> SkillTargetingPattern
+    SkillTargetingProfile --> SkillTargetAffinity
+    SkillCatalog *-- ClassSkillCatalog
+    ClassSkillCatalog o-- SkillDefinition : 13 skills
+    SkillCatalogRegistry --> SkillCatalog
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <!-- ── Libros ─────────────────────────────────── -->
+    <h3 id="libros">Libros de habilidad · catálogo</h3>
+    <p class="subtitle">157 libros = 1 común universal + 52 bases × 3 raridades (Special/Epic/Legendary).</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class SkillBookRarity {
+        &lt;&lt;enumeration&gt;&gt;
+        Common
+        Special
+        Epic
+        Legendary
+    }
+
+    class SkillBookDefinition {
+        &lt;&lt;record&gt;&gt;
+        +DefinitionId string
+        +DisplayName string
+        +Rarity SkillBookRarity
+        +SkillId string?
+    }
+
+    class SkillBookCatalog {
+        &lt;&lt;static&gt;&gt;
+        +CommonBookDefinitionId string
+        +CommonBookDisplayName string
+        +All IReadOnlyCollection
+        +TotalBookCount int
+        +Get(id) SkillBookDefinition
+        +TryGet(id) SkillBookDefinition?
+        +GetSpecificBookId(skillId, rarity) string
+    }
+
+    SkillBookDefinition --> SkillBookRarity
+    SkillBookCatalog o-- SkillBookDefinition : 157 instancias
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <!-- ── Ascensión ──────────────────────────────── -->
+    <h3 id="ascension">Ascensión de habilidades · costes y servicio</h3>
+    <p class="subtitle">Tabla de 10 pasos · 2 variantes (normal/ultimate) · servicio atómico con rollback.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class SkillAscensionBookRequirement {
+        &lt;&lt;record&gt;&gt;
+        +Count int
+        +Rarity SkillBookRarity
+    }
+
+    class SkillAscensionStepCost {
+        &lt;&lt;record&gt;&gt;
+        +Books SkillAscensionBookRequirement
+        +Copper long
+        +Silver long
+        +Gold long
+        +Energy long
+    }
+
+    class SkillAscensionCostTable {
+        &lt;&lt;static&gt;&gt;
+        +MinStep int
+        +MaxStep int
+        +GetStepCost(step, isUltimate) SkillAscensionStepCost
+        +ResolveBookDefinitionId(req, skillId) string
+        +GetCurrencyCost(cost) CurrencyCost
+    }
+
+    class SkillAscensionService {
+        +PreviewNextStep(player, skillId) SkillAscensionPreview?
+        +AscendSkill(player, skillId) SkillAscensionResult
+    }
+
+    class SkillAscensionPreview {
+        &lt;&lt;record&gt;&gt;
+        +SkillId string
+        +CurrentLevel int
+        +NextStepCost SkillAscensionStepCost?
+        +BookDefinitionId string?
+    }
+
+    class SkillAscensionResult {
+        &lt;&lt;record&gt;&gt;
+        +Success bool
+        +ErrorCode string?
+        +ErrorMessage string?
+        +SkillId string
+        +PreviousLevel int
+        +NewLevel int
+        +CostApplied SkillAscensionStepCost?
+        +BookDefinitionId string?
+        +Transactions IReadOnlyList
+    }
+
+    SkillAscensionStepCost *-- SkillAscensionBookRequirement
+    SkillAscensionBookRequirement --> SkillBookRarity
+    SkillAscensionCostTable --> SkillAscensionStepCost
+    SkillAscensionService --> SkillAscensionCostTable
+    SkillAscensionService --> SkillBookCatalog
+    SkillAscensionService --> PlayerWalletService
+    SkillAscensionService ..> PlayerInventory
+    SkillAscensionService --> SkillAscensionPreview
+    SkillAscensionService --> SkillAscensionResult
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- STATS · POWERSCORE                                             -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="stats">
+    <h2>Subsistema · Stats · PowerScore</h2>
+    <p class="subtitle">Catálogo de stats inmutable · contribuciones por fuente · calculadora + FinalStats · Power Score por clase.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class StatType {
+        &lt;&lt;enumeration&gt;&gt;
+        MaxHp
+        MaxMana
+        HpRegen
+        ManaRegen
+        PhysicalAttack
+        MagicAttack
+        AttackSpeed
+        CritChance
+        CritDamage
+        Accuracy
+        Evasion
+        Defense
+        MagicResistance
+        Tenacity
+        CooldownReduction
+        SkillRecoveryRate
+        HealingEffectiveness
+        MoveSpeed
+        ExpGain
+        DropRate
+        ...
+    }
+
+    class StatCategory {
+        &lt;&lt;enumeration&gt;&gt;
+        CombatResource
+        Offensive
+        Defensive
+        Recovery
+        Healing
+        Utility
+        Progression
+        StatusApplication
+        StatusEvasion
+        DamageIncrease
+        DamageReduction
+    }
+
+    class StatContributionType {
+        &lt;&lt;enumeration&gt;&gt;
+        Flat
+        Percentage
+    }
+
+    class StatContribution {
+        +StatType StatType
+        +Value decimal
+        +SourceName string
+        +ContributionType StatContributionType
+    }
+
+    class StatDefinition {
+        &lt;&lt;record&gt;&gt;
+        +Type StatType
+        +Description string
+        +Category StatCategory
+        +BehaviorFamily StatBehaviorFamily
+        +Constraints StatConstraint
+        +IsMaximum bool
+    }
+
+    class StatCatalog {
+        &lt;&lt;static&gt;&gt;
+        +Get(type) StatDefinition
+        +GetAll() IReadOnlyCollection
+    }
+
+    class IStatSource {
+        &lt;&lt;interface&gt;&gt;
+        +ContributeTo(stats) void
+    }
+
+    class FinalStats {
+        +Set(type, value) void
+        +Get(type) decimal
+        +GetContributions(type) IReadOnlyList
+        +GetAll() IReadOnlyDictionary
+    }
+
+    class StatsCalculator {
+        +Calculate(sources) FinalStats
+    }
+
+    StatContribution --> StatType
+    StatContribution --> StatContributionType
+    StatDefinition --> StatType
+    StatDefinition --> StatCategory
+    StatCatalog o-- StatDefinition
+    StatsCalculator --> IStatSource
+    StatsCalculator --> FinalStats
+    FinalStats *-- StatContribution
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <h3>PowerScore</h3>
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class PowerScoreCategory {
+        &lt;&lt;enumeration&gt;&gt;
+        Offensive
+        Defensive
+        Recovery
+        Utility
+        Status
+        Progression
+    }
+
+    class PowerScoreStatInclusion {
+        &lt;&lt;enumeration&gt;&gt;
+        Direct
+        IndirectLowWeight
+        Excluded
+    }
+
+    class PowerScoreValueTransform {
+        &lt;&lt;enumeration&gt;&gt;
+        DirectFraction
+        RatioToReference
+        MitigationRatio
+        EffectiveHitChanceAgainstReference
+        HitAvoidanceAgainstReference
+        EffectiveCritChanceAgainstReference
+        CrowdControlResistanceRatio
+        RecoveryAccelerationFromRate
+    }
+
+    class PowerScoreStatPolicy {
+        &lt;&lt;record&gt;&gt;
+        +StatType StatType
+        +Category PowerScoreCategory
+        +Inclusion PowerScoreStatInclusion
+        +UnitValue decimal
+        +ValueTransform PowerScoreValueTransform
+        +ReferenceValue decimal
+        +CategoryAdjustment decimal
+    }
+
+    class PowerScoreGlobalTuning {
+        &lt;&lt;record&gt;&gt;
+        +BasicAttackSourceWeight decimal
+        +StandardSkillSourceWeight decimal
+        +UltimateSkillSourceWeight decimal
+        +ReferenceAccuracy decimal
+        +ReferenceEvasion decimal
+    }
+
+    class PowerScoreCalculationContext {
+        &lt;&lt;record&gt;&gt;
+        +Character Character
+        +SkillProgress CharacterSkillProgressCollection?
+        +SkillCatalog SkillCatalog?
+    }
+
+    class PowerScoreResult {
+        &lt;&lt;record&gt;&gt;
+        +TotalScore decimal
+        +ClassType ClassType
+        +StatContributions IReadOnlyList
+        +CategoryContributions IReadOnlyList
+        +Tuning PowerScoreGlobalTuning
+    }
+
+    class IPowerScoreCalculator {
+        &lt;&lt;interface&gt;&gt;
+        +Calculate(ctx) PowerScoreResult
+    }
+
+    class PowerScoreCalculator {
+        +Calculate(ctx) PowerScoreResult
+    }
+
+    PowerScoreStatPolicy --> StatType
+    PowerScoreStatPolicy --> PowerScoreCategory
+    PowerScoreStatPolicy --> PowerScoreStatInclusion
+    PowerScoreStatPolicy --> PowerScoreValueTransform
+    PowerScoreResult --> PowerScoreGlobalTuning
+    IPowerScoreCalculator <|.. PowerScoreCalculator
+    PowerScoreCalculator --> PowerScoreCalculationContext
+    PowerScoreCalculator --> PowerScoreResult
+    PowerScoreCalculator ..> PowerScoreStatPolicy
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- PROGRESIÓN · PERSONAJES · RECURSOS                             -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="progresion">
+    <h2>Subsistema · Progresión · Personajes</h2>
+    <p class="subtitle">Niveles 1-80 · XP con hitos por década · snapshot factory · recursos HP/Mana/Ultimate.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class Character {
+        +Id Guid
+        +ClassType ClassType
+        +Level int
+        +Stats FinalStats
+        +Resources CharacterResources
+        +GetResourceMaximum(type) decimal
+        +GetCurrentResource(type) decimal
+        +HasAvailableResource(type, amt) bool
+    }
+
+    class CharacterLevelProgress {
+        &lt;&lt;record&gt;&gt;
+        +Level int
+        +CurrentXp long
+        +XpToNextLevel long
+        +TotalXp long
+        +IsAtMaxLevel bool
+        +RemainingXpToNextLevel long
+    }
+
+    class CharacterLevelTransition {
+        &lt;&lt;record&gt;&gt;
+        +FromLevel int
+        +ToLevel int
+        +ExperienceRequired long
+        +IncludesMilestoneBonus bool
+        +CompoundMultiplier decimal
+        +AppliedMultiplier decimal
+    }
+
+    class CharacterExperienceGrantResult {
+        &lt;&lt;record&gt;&gt;
+        +PreviousProgress CharacterLevelProgress
+        +UpdatedProgress CharacterLevelProgress
+        +GrantedExperience long
+        +LevelsGained int
+        +AppliedTransitions IReadOnlyList
+    }
+
+    class ICharacterLevelProgressionService {
+        &lt;&lt;interface&gt;&gt;
+        +GrantExperience(...) CharacterExperienceGrantResult
+    }
+
+    class CharacterLevelProgressionService {
+        +GrantExperience(...) CharacterExperienceGrantResult
+    }
+
+    class ExperienceService {
+        +ProcessMobKill(...) ExperienceGrantResult
+        +GrantDirectExperience(...) ExperienceGrantResult
+    }
+
+    class CharacterFinalStatsBuilder {
+        +Build(class, level, sources) FinalStats
+    }
+
+    class CharacterProfileSnapshotRequest {
+        &lt;&lt;record&gt;&gt;
+        +CharacterId Guid
+        +ClassType ClassType
+        +Progression CharacterLevelProgress
+        +Resources CharacterResources
+        +AdditionalStatSources IEnumerable
+        +SkillProgress CharacterSkillProgressCollection?
+        +SkillCatalog SkillCatalog?
+        +IncludePowerScore bool
+    }
+
+    class CharacterProfileSnapshot {
+        &lt;&lt;record&gt;&gt;
+        +CharacterId Guid
+        +ClassType ClassType
+        +Progression CharacterLevelProgress
+        +FinalStats IReadOnlyDictionary
+        +Resources CharacterResourceSnapshot
+        +PowerScore PowerScoreResult?
+    }
+
+    class CharacterResourceSnapshot {
+        &lt;&lt;record&gt;&gt;
+        +CurrentHp decimal
+        +CurrentMana decimal
+        +UltimateCharge decimal
+    }
+
+    class CharacterProfileSnapshotFactory {
+        +CreateSnapshot(request) CharacterProfileSnapshot
+    }
+
+    Character --> ClassType
+    Character *-- FinalStats
+    Character *-- CharacterResources
+    ICharacterLevelProgressionService <|.. CharacterLevelProgressionService
+    ExperienceService --> ICharacterLevelProgressionService
+    CharacterFinalStatsBuilder --> IStatSource
+    CharacterFinalStatsBuilder --> FinalStats
+    CharacterProfileSnapshotFactory --> CharacterProfileSnapshotRequest
+    CharacterProfileSnapshotFactory --> CharacterProfileSnapshot
+    CharacterProfileSnapshotFactory --> CharacterFinalStatsBuilder
+    CharacterProfileSnapshotFactory --> PowerScoreCalculator
+    CharacterProfileSnapshot *-- CharacterResourceSnapshot
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <!-- ── Recursos ───────────────────────────────── -->
+    <h3 id="recursos">Recursos del personaje</h3>
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class CharacterResourceType {
+        &lt;&lt;enumeration&gt;&gt;
+        Hp
+        Mana
+        UltimateCharge
+    }
+
+    class CharacterResourceConstraint {
+        &lt;&lt;enumeration · Flags&gt;&gt;
+        None
+        NonNegative
+        ClampToMaximumOnGain
+        RejectSpendWhenInsufficient
+        ResolveDepletionAtZero
+        PersistentRuntime
+    }
+
+    class CharacterResourceDefinition {
+        &lt;&lt;record&gt;&gt;
+        +Type CharacterResourceType
+        +Description string
+        +MaximumStatType StatType
+        +Constraints CharacterResourceConstraint
+        +IsRuntimeResource bool
+        +IsPersistent bool
+    }
+
+    class CharacterResourceCatalog {
+        &lt;&lt;static&gt;&gt;
+        +Get(type) CharacterResourceDefinition
+    }
+
+    class CharacterResources {
+        +CurrentHp decimal
+        +CurrentMana decimal
+        +UltimateCharge decimal
+    }
+
+    CharacterResourceDefinition --> CharacterResourceType
+    CharacterResourceDefinition --> CharacterResourceConstraint
+    CharacterResourceCatalog o-- CharacterResourceDefinition
+    CharacterResources ..> CharacterResourceCatalog
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- COMBATE                                                        -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="combate">
+    <h2>Subsistema · Combate</h2>
+    <p class="subtitle">Pipeline de validación (lockout/CC/silence/GCD/cast-time) + motor de resolución + condiciones con sinergias.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class BasicAttackDefinition {
+        &lt;&lt;record&gt;&gt;
+        +ClassType ClassType
+        +Magnitude BasicAttackMagnitudeCoefficients
+        +Combo BasicAttackComboProfile
+    }
+
+    class BasicAttackMagnitudeCoefficients {
+        &lt;&lt;record&gt;&gt;
+        +PhysicalCoeff decimal
+        +MagicCoeff decimal
+    }
+
+    class BasicAttackComboProfile {
+        &lt;&lt;record&gt;&gt;
+        +StageCount int
+        +WindowSeconds decimal
+        +StageMultiplier decimal
+    }
+
+    class IClassBasicAttackCatalog {
+        &lt;&lt;interface&gt;&gt;
+        +GetForClass(class) BasicAttackDefinition
+    }
+
+    class ClassBasicAttackCatalog {
+        +Default ClassBasicAttackCatalog
+    }
+
+    class ICombatEventResolver {
+        &lt;&lt;interface&gt;&gt;
+        +Resolve(ctx) CombatEventResult
+    }
+
+    class CombatEventResolver {
+        +Resolve(ctx) CombatEventResult
+    }
+
+    class ICombatProbabilityService {
+        &lt;&lt;interface&gt;&gt;
+        +Check(chance) bool
+    }
+
+    class RandomCombatProbabilityService {
+        +Check(chance) bool
+    }
+
+    class ICombatActionMagnitudeService {
+        &lt;&lt;interface&gt;&gt;
+        +Resolve(ctx, profile) decimal
+    }
+
+    class ICombatActionResourceService {
+        &lt;&lt;interface&gt;&gt;
+        +Evaluate(actor, costs) ResourceEvaluation
+    }
+
+    class ICombatResourceProjectionService {
+        &lt;&lt;interface&gt;&gt;
+        +Project(character, type, delta) decimal
+    }
+
+    class ICombatConditionApplicationService {
+        &lt;&lt;interface&gt;&gt;
+        +Apply(target, effect) ConditionApplicationResult
+    }
+
+    class ICombatConditionInteractionService {
+        &lt;&lt;interface&gt;&gt;
+        +Evaluate(target, incoming) InteractionOutcome
+    }
+
+    ICombatEventResolver <|.. CombatEventResolver
+    ICombatProbabilityService <|.. RandomCombatProbabilityService
+    IClassBasicAttackCatalog <|.. ClassBasicAttackCatalog
+    BasicAttackDefinition *-- BasicAttackMagnitudeCoefficients
+    BasicAttackDefinition *-- BasicAttackComboProfile
+    ClassBasicAttackCatalog o-- BasicAttackDefinition
+    CombatEventResolver --> ICombatProbabilityService
+    CombatEventResolver --> ICombatActionMagnitudeService
+    CombatEventResolver --> ICombatActionResourceService
+    CombatEventResolver --> ICombatConditionApplicationService
+    CombatEventResolver --> ICombatConditionInteractionService
+    CombatEventResolver --> ICombatResourceProjectionService
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <h3>Pipeline de validación + motor online</h3>
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class CombatActionType {
+        &lt;&lt;enumeration&gt;&gt;
+        BasicAttack
+        UseSkill
+    }
+
+    class ValidationResult {
+        &lt;&lt;record&gt;&gt;
+        +Allowed bool
+        +RejectionReason string?
+    }
+
+    class CombatValidationPipeline {
+        &lt;&lt;static&gt;&gt;
+        +Validate(player, actionType, skill) ValidationResult
+        +RecordAction(player, actionType) void
+    }
+
+    class CombatFormulaConstants {
+        &lt;&lt;static&gt;&gt;
+        +BaseHitChance decimal
+        +DefenseSoftCap decimal
+        +CritDamageTakenReductionCap decimal
+        +CooldownReductionCap decimal
+        +TenacityCap decimal
+        +GetStateSynergyMultiplier(a, b) decimal
+    }
+
+    class CombatTimingConstants {
+        &lt;&lt;static&gt;&gt;
+        +GcdDurationMs int
+        +BasicAttackIntervalMs int
+        +ComboWindowMs int
+        +RateLimitActions int
+        +LockoutDurationMs int
+    }
+
+    class OnlineCombatService {
+        +ExecuteBasicAttack(attacker, target) OnlineCombatResult
+        +ExecuteSkill(attacker, target, skill) OnlineCombatResult
+        +ExecuteSkillOnMultipleTargets(attacker, targets, skill) IReadOnlyList
+    }
+
+    class OnlineCombatResult {
+        +ActorPlayerId string
+        +TargetPlayerId string
+        +ActionType string
+        +ActionName string
+        +DamageDealt decimal
+        +HealingDone decimal
+        +Outcome string
+        +Critical bool
+        +TargetHpAfter decimal
+        +TargetManaAfter decimal
+        +AppliedConditions IReadOnlyList
+    }
+
+    CombatValidationPipeline --> ValidationResult
+    CombatValidationPipeline --> CombatActionType
+    CombatValidationPipeline ..> CombatTimingConstants
+    OnlineCombatService ..> CombatValidationPipeline
+    OnlineCombatService ..> CombatFormulaConstants
+    OnlineCombatService ..> CombatEventResolver
+    OnlineCombatService --> OnlineCombatResult
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <!-- ── Condiciones ───────────────────────────── -->
+    <h3 id="condiciones">Catálogo de condiciones · sinergias</h3>
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class CombatConditionType {
+        &lt;&lt;enumeration&gt;&gt;
+        Heat
+        Cold
+        Poison
+        Bleed
+        Electrified
+        Stun
+        Silence
+        Blind
+        Fear
+        Slow
+        Freeze
+        Paralyze
+        Burn
+    }
+
+    class CombatConditionCategory {
+        &lt;&lt;enumeration&gt;&gt;
+        State
+        DoT
+        CrowdControl
+    }
+
+    class CombatConditionDefinition {
+        &lt;&lt;record&gt;&gt;
+        +Type CombatConditionType
+        +Category CombatConditionCategory
+        +DefaultDurationSeconds decimal
+        +DefaultApplyChance decimal
+        +RefreshesOnApply bool
+    }
+
+    class CombatConditionCatalog {
+        &lt;&lt;static&gt;&gt;
+        +Get(type) CombatConditionDefinition
+        +All IReadOnlyCollection
+    }
+
+    class CombatProtectionType {
+        &lt;&lt;enumeration&gt;&gt;
+        Invulnerability
+        DamageImmunity
+        ConditionImmunity
+        ControlImmunity
+    }
+
+    class CombatProtectionBlockType {
+        &lt;&lt;enumeration · Flags&gt;&gt;
+        None
+        Damage
+        Conditions
+        CrowdControl
+    }
+
+    CombatConditionDefinition --> CombatConditionType
+    CombatConditionDefinition --> CombatConditionCategory
+    CombatConditionCatalog o-- CombatConditionDefinition
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- MUNDO ONLINE                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="mundo">
+    <h2>Subsistema · Mundo online</h2>
+    <p class="subtitle">Estado in-memory del multiplayer · tick de 1s · proximidad por grid 0-99 · per-player CombatLock.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class OnlinePlayer {
+        +ConnectionId string
+        +PlayerId string
+        +DisplayName string
+        +ClassName string
+        +ClassType ClassType
+        +Level int
+        +AscensionLevel int
+        +X float
+        +Y float
+        +CurrentHp decimal
+        +MaxHp decimal
+        +CurrentMana decimal
+        +MaxMana decimal
+        +Stats Dictionary
+        +Skills List
+        +Cooldowns Dictionary
+        +Conditions List
+        +LastMoveTime DateTime
+        +ConnectedAt DateTime
+        +LastBasicAttackTime DateTime
+        +LastSkillUseTime DateTime
+        +ComboStep int
+        +CastingUntil DateTime
+        +CombatActionLog Queue
+        +LockoutUntil DateTime
+        +LockoutCount int
+        +GroupId string?
+        +CombatLock object
+        +Inventory PlayerInventory
+        +SkillAscension Dictionary
+    }
+
+    class OnlinePlayerSkill {
+        &lt;&lt;record&gt;&gt;
+        +SkillId string
+        +Name string
+        +ManaCost decimal
+        +BaseCooldownSeconds decimal
+        +DamageType string
+    }
+
+    class OnlinePlayerCondition {
+        &lt;&lt;record&gt;&gt;
+        +ConditionType string
+        +Category string
+        +RemainingSeconds float
+        +AppliedAt DateTime
+    }
+
+    class GameWorldService {
+        +JoinWorld(connId, name, class, level, asc) OnlinePlayer
+        +LeaveWorld(connId) OnlinePlayer?
+        +GetPlayerByConnectionId(id) OnlinePlayer?
+        +GetPlayerByPlayerId(id) OnlinePlayer?
+        +MovePlayer(connId, direction) OnlinePlayer?
+        +MovePlayerTo(connId, x, y) OnlinePlayer?
+        +MoveToward(actor, target, range) void
+        +AreInRange(a, b, range) bool
+        +GetSkillRange(skill) float
+        +GetNearbyPlayersOf(player) IReadOnlyList
+        +GetWorldSnapshot() WorldSnapshotDto
+        +RemoveInactivePlayers(idle) IReadOnlyList
+    }
+
+    class IProximityProvider {
+        &lt;&lt;interface&gt;&gt;
+        +CheckProximity(a, b) ProximityCheckResult
+        +GetNearbyCharacters(id) IReadOnlyList
+    }
+
+    class GameWorldProximityProvider {
+        +CheckProximity(a, b) ProximityCheckResult
+        +GetNearbyCharacters(id) IReadOnlyList
+    }
+
+    class WorldTickService {
+        +ExecuteAsync(token) Task
+    }
+
+    IProximityProvider <|.. GameWorldProximityProvider
+    GameWorldProximityProvider --> GameWorldService
+    WorldTickService --> GameWorldService
+    GameWorldService *-- OnlinePlayer
+    OnlinePlayer *-- OnlinePlayerSkill
+    OnlinePlayer *-- OnlinePlayerCondition
+    OnlinePlayer *-- PlayerInventory
+    OnlinePlayer --> ClassType
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <!-- ── Grupos ─────────────────────────────── -->
+    <h3 id="grupos">Grupos (party play)</h3>
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class OnlineGroup {
+        +GroupId string
+        +LeaderId string
+        +MemberIds List
+        +CreatedAt DateTime
+        +AddMember(id) bool
+        +RemoveMember(id) bool
+        +PromoteLeader(id) bool
+        +IsEmpty bool
+    }
+
+    class GroupInvitation {
+        +InviterId string
+        +InviteeId string
+        +GroupId string
+        +ExpiresAt DateTime
+    }
+
+    class GroupService {
+        +CreateGroup(leader) OnlineGroup
+        +InviteToGroup(inviter, invitee) GroupOpResult
+        +AcceptInvitation(invitee, invId) GroupOpResult
+        +DeclineInvitation(invitee, invId) bool
+        +LeaveGroup(player) GroupOpResult
+        +KickFromGroup(leader, target) GroupOpResult
+        +CleanupPlayer(player) void
+        +GetGroupOf(player) OnlineGroup?
+    }
+
+    GroupService *-- OnlineGroup
+    GroupService *-- GroupInvitation
+    GroupService --> GameWorldService
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- SOCIAL                                                         -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="social">
+    <h2>Subsistema · Social · Chat</h2>
+    <p class="subtitle">Amistades y bloqueos · chat local con rate-limit y proximidad · perfil público.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class SocialRelationshipType {
+        &lt;&lt;enumeration · Flags&gt;&gt;
+        None
+        Friend
+        Blocked
+    }
+
+    class FriendRequestStatus {
+        &lt;&lt;enumeration&gt;&gt;
+        Pending
+        Accepted
+        Rejected
+        Cancelled
+    }
+
+    class ProximityCheckResult {
+        &lt;&lt;record&gt;&gt;
+        +IsWithinRange bool
+        +DistanceMeters decimal
+        +DenialReason string?
+    }
+
+    class SocialOperationResult {
+        &lt;&lt;record&gt;&gt;
+        +Success bool
+        +Error string?
+    }
+
+    class ChatMessage {
+        &lt;&lt;record&gt;&gt;
+        +SenderId Guid
+        +SenderName string
+        +RecipientId Guid?
+        +Content string
+        +Timestamp DateTime
+    }
+
+    class ISocialRelationshipService {
+        &lt;&lt;interface&gt;&gt;
+        +SendFriendRequestAsync(sender, target) SocialOperationResult
+        +AcceptFriendRequestAsync(...) SocialOperationResult
+        +RejectFriendRequestAsync(...) SocialOperationResult
+        +BlockAsync(owner, target) SocialOperationResult
+        +UnblockAsync(...) SocialOperationResult
+        +GetFriendsAsync(owner) IReadOnlyList
+        +GetBlocksAsync(owner) IReadOnlyList
+        +CleanupPlayer(id) void
+    }
+
+    class SocialRelationshipService {
+    }
+
+    class InMemorySocialRelationshipService {
+    }
+
+    class ChatRelayService {
+        +RelayAsync(senderId, recipientId, content) SocialOperationResult
+    }
+
+    class ChatRateLimiter {
+        +TryRegister(charId) bool
+        +GetCooldownUntil(charId) DateTime?
+    }
+
+    class ProximityValidationService {
+        +ValidateInteractionRange(a, b) ProximityCheckResult
+        +GetNearbyCharacters(id) IReadOnlyList
+    }
+
+    class PublicProfileService {
+        +GetProfileAsync(viewer, target) PublicProfileDto?
+    }
+
+    ISocialRelationshipService <|.. SocialRelationshipService
+    ISocialRelationshipService <|.. InMemorySocialRelationshipService
+    SocialRelationshipService --> ProximityValidationService
+    InMemorySocialRelationshipService --> GameWorldService
+    ChatRelayService --> ProximityValidationService
+    ChatRelayService --> ChatRateLimiter
+    ChatRelayService --> ISocialRelationshipService
+    PublicProfileService --> ProximityValidationService
+    ProximityValidationService --> IProximityProvider
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- HUBS SIGNALR                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="hubs">
+    <h2>Subsistema · Hubs SignalR</h2>
+    <p class="subtitle">Dos hubs para el jugador: <code>GameHub</code> (mundo/combate/economía/social) y <code>ChatHub</code> (mensajería). <b>Sin endpoints de reset ni mutaciones directas.</b></p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class Hub {
+        &lt;&lt;SignalR&gt;&gt;
+    }
+
+    class GameHub {
+        +JoinGame(name, class, lvl, asc) JoinWorldResultDto
+        +Move(dir) void
+        +MoveTo(x, y) void
+        +BasicAttack(targetId) void
+        +UseSkill(skillIdx, targetId) void
+        +GetMyState() PlayerFullStateDto
+        +GetWorldSnapshot() WorldSnapshotDto
+        +GetNearbyPlayers() IReadOnlyList
+        +GetPlayerProfile(id) PublicProfileDto?
+        +SendChatMessage(msg) void
+        +SendFriendRequest(targetId) void
+        +AcceptFriendRequest(id) void
+        +RejectFriendRequest(id) void
+        +BlockPlayer(id) void
+        +UnblockPlayer(id) void
+        +GetFriends() IReadOnlyList
+        +GetBlocks() IReadOnlyList
+        +CreateGroup() GroupStateDto
+        +InviteToGroup(id) void
+        +AcceptGroupInvite(id) GroupStateDto
+        +DeclineGroupInvite(id) void
+        +LeaveGroup() void
+        +KickFromGroup(id) void
+        +GetWallet() WalletDto
+        +GetWalletHistory(limit) IReadOnlyList
+        +GetInventory() InventoryDto
+        +ExpandInventory() void
+        +EquipItem(itemId) void
+        +UnequipItem(itemId) void
+        +GetCraftCostPreview(itemId) CraftCostPreviewDto
+        +DevelopItem(itemId) void
+        +CraftTierUp(idA, idB) void
+        +GetChapelState() ChapelStateDto
+        +UpgradeChapel() void
+        +GetConversionQuotas() ConversionQuotasDto
+        +ConvertCurrency(to, amount) void
+        +GetSkillAscensionPreview(skillId) SkillAscensionPreviewDto?
+        +AscendSkill(skillId) void
+    }
+
+    class ChatHub {
+        +SendMessage(content) void
+        +OnConnectedAsync() Task
+        +OnDisconnectedAsync(ex) Task
+    }
+
+    Hub <|-- GameHub
+    Hub <|-- ChatHub
+    GameHub --> GameWorldService
+    GameHub --> OnlineCombatService
+    GameHub --> ISocialRelationshipService
+    GameHub --> GroupService
+    GameHub --> PlayerWalletService
+    GameHub --> PlayerChapelService
+    GameHub --> CurrencyConversionService
+    GameHub --> SkillAscensionService
+    ChatHub --> ChatRelayService
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <h3>DTOs del hub (contrato hacia Unity)</h3>
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class WalletDto {
+        &lt;&lt;record&gt;&gt;
+        +Copper long
+        +Silver long
+        +Gold long
+        +Energy int
+        +EnergyMax int
+    }
+
+    class WalletTransactionDto {
+        &lt;&lt;record&gt;&gt;
+        +Id string
+        +Timestamp DateTime
+        +Currency string
+        +Direction string
+        +Amount long
+        +Source string
+        +Description string
+        +BalanceBefore long
+        +BalanceAfter long
+    }
+
+    class InventoryDto {
+        &lt;&lt;record&gt;&gt;
+        +Capacity int
+        +MaxCapacity int
+        +UsedSlots int
+        +FreeSlots int
+        +ExpansionsPurchased int
+        +MaxExpansions int
+        +Items IReadOnlyList
+    }
+
+    class InventoryItemDto {
+        &lt;&lt;record&gt;&gt;
+        +ItemId string
+        +ItemType string
+        +DefinitionId string
+        +Quantity int
+        +SlotIndex int
+        +Tier int
+        +DevelopmentLevel int
+        +IsEquipped bool
+        +EquippedSlot string?
+    }
+
+    class CurrencyCostDto {
+        &lt;&lt;record&gt;&gt;
+        +Copper long
+        +Silver long
+        +Gold long
+        +Energy long
+    }
+
+    class ChapelStateDto {
+        &lt;&lt;record&gt;&gt;
+        +Level int
+        +MaxLevel int
+        +CharacterLevelRequiredForNext int?
+        +PossessionCaps CurrencyCostDto
+        +SilverConvDaily long
+        +SilverConvWeekly long
+        +SilverConvMonthly long
+        +GoldConvDaily long
+        +GoldConvWeekly long
+        +GoldConvMonthly long
+    }
+
+    class ConversionQuotasDto {
+        &lt;&lt;record&gt;&gt;
+        +SilverUsedToday long
+        +SilverLimitDaily long
+        +SilverUsedWeek long
+        +SilverLimitWeekly long
+        +SilverUsedMonth long
+        +SilverLimitMonthly long
+        +GoldUsedToday long
+        +GoldLimitDaily long
+        +GoldUsedWeek long
+        +GoldLimitWeekly long
+        +GoldUsedMonth long
+        +GoldLimitMonthly long
+    }
+
+    class SkillAscensionPreviewDto {
+        &lt;&lt;record&gt;&gt;
+        +SkillId string
+        +CurrentLevel int
+        +IsMaxed bool
+        +NextStepBookDefinitionId string?
+        +NextStepBookCount int
+        +NextStepBookRarity string?
+        +NextStepCost CurrencyCostDto?
+    }
+
+    class PlayerFullStateDto {
+        &lt;&lt;record&gt;&gt;
+        +PlayerId string
+        +DisplayName string
+        +ClassName string
+        +Level int
+        +AscensionLevel int
+        +X float
+        +Y float
+        +CurrentHp decimal
+        +MaxHp decimal
+        +CurrentMana decimal
+        +MaxMana decimal
+        +Skills IReadOnlyList
+        +Conditions IReadOnlyList
+    }
+
+    class JoinWorldResultDto {
+        &lt;&lt;record&gt;&gt;
+        +Player PlayerFullStateDto
+        +WorldSnapshot WorldSnapshotDto
+    }
+
+    InventoryDto *-- InventoryItemDto
+    ChapelStateDto *-- CurrencyCostDto
+    SkillAscensionPreviewDto *-- CurrencyCostDto
+    JoinWorldResultDto *-- PlayerFullStateDto
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ADMIN (REST)                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="admin">
+    <h2>Subsistema · Admin · Controllers REST</h2>
+    <p class="subtitle">Entrada del Admin al sistema. Expansible: nuevos dominios (Equipment, Economy, Characters, Social, Observability) se añaden como nuevos controllers siguiendo el mismo patrón que <code>SkillAdminController</code>.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class ControllerBase {
+        &lt;&lt;ASP.NET&gt;&gt;
+    }
+
+    class CharactersController {
+        +GetSnapshot(id, ct) ActionResult~CharacterSnapshotDto~
+    }
+
+    class SkillAdminController {
+        +ListSkillsAsync() ActionResult
+        +GetSkillAsync(id) ActionResult
+        +ImportProgrammedAsync() ActionResult
+        +CreateDraftAsync(dto) ActionResult
+        +UpdateDraftAsync(id, dto) ActionResult
+        +PublishAsync(id) ActionResult
+        +ArchiveAsync(id) ActionResult
+        +GetOptionsAsync() ActionResult
+    }
+
+    class SocialController {
+        +GetProfile(id) ActionResult
+        +SendFriendRequest(dto) ActionResult
+        +AcceptFriend(id) ActionResult
+        +RejectFriend(id) ActionResult
+        +BlockPlayer(dto) ActionResult
+        +UnblockPlayer(id) ActionResult
+        +GetFriends() ActionResult
+        +GetBlocks() ActionResult
+    }
+
+    ControllerBase <|-- CharactersController
+    ControllerBase <|-- SkillAdminController
+    ControllerBase <|-- SocialController
+    CharactersController --> ICharacterSnapshotQueryService
+    SkillAdminController --> ISkillAdminCatalogService
+    SkillAdminController --> ISkillAdminOptionsService
+    SocialController --> ISocialRelationshipService
+    SocialController --> PublicProfileService
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <h3>Controllers planificados (para entrega final)</h3>
+    <p style="font-size:14px">Cada controller admin sigue el patrón de <code>SkillAdminController</code>: endpoints CRUD + listado + operaciones específicas. Todos exigen autorización de rol admin y registran auditoría.</p>
+    <table class="stats">
+      <tr><th>Controller</th><th>Ámbito</th><th>Operaciones clave</th></tr>
+      <tr><td><code>SkillAdminController</code> ✅</td><td>Skills</td><td>List, Get, Import, Create, Edit, Publish, Archive</td></tr>
+      <tr><td><code>EquipmentAdminController</code></td><td>Catálogo de equipamiento (189 designs)</td><td>List, Get, Create, Edit, Publish, Archive, GrantToPlayer</td></tr>
+      <tr><td><code>BookAdminController</code></td><td>Catálogo de libros (157 definiciones)</td><td>List, Get, Create, Edit, Publish, GrantToPlayer</td></tr>
+      <tr><td><code>MaterialAdminController</code></td><td>Plantas / minerales / materiales</td><td>List, Get, Create, Edit, Publish, GrantToPlayer</td></tr>
+      <tr><td><code>StatAdminController</code></td><td>Catálogo de stats y fórmulas</td><td>List, Get, Edit (tunings), ReviewAudit</td></tr>
+      <tr><td><code>WalletAdminController</code></td><td>Wallets de jugadores</td><td>ViewBalance, AuditHistory, AdminGrant, AdminDeduct</td></tr>
+      <tr><td><code>ChapelAdminController</code></td><td>Capilla de Economía</td><td>GetLevel, SetLevel, ListUpgradePending</td></tr>
+      <tr><td><code>EconomyRulesAdminController</code></td><td>Reglas globales de conversión</td><td>GetRates, EditRates, EditQuotaTables</td></tr>
+      <tr><td><code>CharactersAdminController</code></td><td>Personajes persistidos</td><td>List, Search, Get, GrantXp, SetLevel, ResetProgression</td></tr>
+      <tr><td><code>SocialAdminController</code></td><td>Relaciones sociales</td><td>AuditRelationships, ViewBlocks, RemoveRelationship</td></tr>
+      <tr><td><code>ChatAdminController</code></td><td>Chat y moderación</td><td>GetChatLog, MuteUser, UnmuteUser</td></tr>
+      <tr><td><code>ModerationAdminController</code></td><td>Sanciones</td><td>Ban, Unban, ListBans</td></tr>
+      <tr><td><code>WorldObservabilityController</code></td><td>Monitor del mundo online</td><td>ListOnlinePlayers, ViewGroups, ViewActiveCombats</td></tr>
+      <tr><td><code>AuditLogController</code></td><td>Logs de auditoría</td><td>QueryWalletLog, QueryCraftLog, QueryCombatLog</td></tr>
+    </table>
+    <p style="font-size:13px;color:var(--text-dim)">
+      Los controllers admin marcados sin ✅ aún no están implementados como endpoints REST, pero toda la <b>capa de dominio y servicios</b> para soportarlos ya existe
+      (<code>PlayerWalletService</code>, <code>PlayerChapelService</code>, <code>ExperienceService</code>, etc.). Añadirlos es crear el thin-layer HTTP que llama a los servicios existentes.
+    </p>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- PERSISTENCIA                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section id="persistencia">
+    <h2>Subsistema · Persistencia EF Core</h2>
+    <p class="subtitle">DbContext con PostgreSQL opcional · entidades persisted · 4 migraciones aplicadas.</p>
+
+    <div class="diagram-box">
+      <div class="diagram-tools">
+        <button onclick="toggleFullscreen(this)">⛶ Pantalla completa</button>
+        <button onclick="resetZoom(this)">↺ Reset zoom</button>
+      </div>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+classDiagram
+    direction LR
+
+    class DbContext {
+        &lt;&lt;EF Core&gt;&gt;
+    }
+
+    class WarDbContext {
+        +Characters DbSet
+        +CharacterSkillProgressEntries DbSet
+        +AdminSkillRecords DbSet
+        +SocialRelationships DbSet
+        +FriendRequests DbSet
+        #OnModelCreating(builder) void
+    }
+
+    class CharacterEntity {
+        +Id Guid
+        +Name string
+        +ClassType ClassType
+        +Level int
+        +CurrentXp long
+        +CurrentHp decimal
+        +CurrentMana decimal
+        +UltimateCharge decimal
+        +CreatedAt DateTime
+        +UpdatedAt DateTime
+    }
+
+    class CharacterSkillProgressEntity {
+        +Id Guid
+        +CharacterId Guid
+        +SkillId string
+        +Unlocked bool
+        +AscensionLevel int
+        +UnlockedAt DateTime?
+    }
+
+    class AdminSkillRecordEntity {
+        +Id Guid
+        +SkillId string
+        +DefinitionJson string
+        +DraftVersion int
+        +PublishedVersion int?
+        +PublicationStatus string
+        +AuthorId Guid
+        +UpdatedAt DateTime
+    }
+
+    class SocialRelationshipEntity {
+        +Id Guid
+        +OwnerId Guid
+        +TargetId Guid
+        +RelationshipType int
+        +CreatedAt DateTime
+    }
+
+    class FriendRequestEntity {
+        +Id Guid
+        +SenderId Guid
+        +ReceiverId Guid
+        +Status FriendRequestStatus
+        +CreatedAt DateTime
+        +ResolvedAt DateTime?
+    }
+
+    DbContext <|-- WarDbContext
+    WarDbContext *-- CharacterEntity
+    WarDbContext *-- CharacterSkillProgressEntity
+    WarDbContext *-- AdminSkillRecordEntity
+    WarDbContext *-- SocialRelationshipEntity
+    WarDbContext *-- FriendRequestEntity
+    CharacterEntity --> CharacterSkillProgressEntity : 1..N
+        </div>
+        <div class="diagram-hint">Rueda = zoom · Arrastrar = pan</div>
+      </div>
+    </div>
+
+    <h3>Migraciones aplicadas</h3>
+    <table class="stats">
+      <tr><th>Timestamp</th><th>Nombre</th><th>Contenido</th></tr>
+      <tr><td>2026-03-12 21:14</td><td>InitialCharacterSnapshotFlow</td><td>Character + CharacterSkillProgress + columnas iniciales</td></tr>
+      <tr><td>2026-03-14 22:15</td><td>AdminSkillCatalog</td><td>Tabla AdminSkillRecord</td></tr>
+      <tr><td>2026-03-15 00:19</td><td>AdminSkillPublicationFlow</td><td>Versionado draft/published</td></tr>
+      <tr><td>2026-03-15 02:34</td><td>BasicAttackComboState</td><td>Estado runtime del combo</td></tr>
+    </table>
+  </section>
+
+  <footer>
+    <p>Documento generado para reunión de acoplamiento con el equipo de Unity.</p>
+    <p>Todos los diagramas son auto-contenidos. Rueda del ratón = zoom · arrastrar = pan · botón ⛶ = pantalla completa · Esc = salir de pantalla completa.</p>
+    <p>Rama: <code>Rubén</code> · Worktree: <code>confident-cartwright</code> · Archivo: <code>DIAGRAMAS_UML.html</code> · <b>Sin código demo</b></p>
+  </footer>
+
+</main>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#1c232e',
+      primaryTextColor: '#e6edf3',
+      primaryBorderColor: '#58a6ff',
+      lineColor: '#6e7681',
+      secondaryColor: '#161b22',
+      tertiaryColor: '#0e1117',
+      classText: '#e6edf3',
+      fontSize: '14px'
+    },
+    flowchart: { htmlLabels: true, curve: 'basis', nodeSpacing: 50, rankSpacing: 70 },
+    class: { defaultRenderer: 'dagre-wrapper' }
+  });
+
+  const zoomInstances = new WeakMap();
+
+  async function renderAndAttachPanZoom() {
+    const nodes = Array.from(document.querySelectorAll('.mermaid'));
+    await mermaid.run({ nodes });
+    // Anclar svg-pan-zoom a cada SVG renderizado
+    for (const node of nodes) {
+      const svg = node.querySelector('svg');
+      if (!svg) continue;
+      svg.removeAttribute('height');
+      svg.style.height = '100%';
+      svg.style.width = '100%';
+      const inst = svgPanZoom(svg, {
+        zoomEnabled: true,
+        panEnabled: true,
+        dblClickZoomEnabled: true,
+        mouseWheelZoomEnabled: true,
+        controlIconsEnabled: true,
+        fit: true,
+        center: true,
+        minZoom: 0.3,
+        maxZoom: 10
+      });
+      zoomInstances.set(svg, inst);
+    }
+  }
+
+  function findWrapper(btn) {
+    return btn.closest('.diagram-box').querySelector('.diagram-wrapper');
+  }
+
+  function toggleFullscreen(btn) {
+    const wrapper = findWrapper(btn);
+    wrapper.classList.toggle('fullscreen');
+    // Re-fit después de resize
+    setTimeout(() => {
+      const svg = wrapper.querySelector('svg');
+      const inst = svg && zoomInstances.get(svg);
+      if (inst) { inst.resize(); inst.fit(); inst.center(); }
+    }, 100);
+    btn.textContent = wrapper.classList.contains('fullscreen') ? '✕ Cerrar' : '⛶ Pantalla completa';
+  }
+
+  function resetZoom(btn) {
+    const wrapper = findWrapper(btn);
+    const svg = wrapper.querySelector('svg');
+    const inst = svg && zoomInstances.get(svg);
+    if (inst) { inst.resetZoom(); inst.center(); inst.fit(); }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.diagram-wrapper.fullscreen').forEach(w => {
+        w.classList.remove('fullscreen');
+        const btn = w.closest('.diagram-box').querySelector('.diagram-tools button');
+        if (btn) btn.textContent = '⛶ Pantalla completa';
+      });
+    }
+  });
+
+  window.addEventListener('load', renderAndAttachPanZoom);
+</script>
+</body>
+</html>

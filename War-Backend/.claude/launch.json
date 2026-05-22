@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "war-api",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "War.Api", "--urls", "http://0.0.0.0:5041"],
+      "port": 5041
+    }
+  ]
+}

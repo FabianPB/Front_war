@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>WAR Backend · Mapa de Código</title>
+<style>
+  :root {
+    --bg: #0e1117;
+    --bg-alt: #161b22;
+    --bg-card: #1c232e;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #f78166;
+    --accent-2: #58a6ff;
+    --accent-3: #3fb950;
+    --accent-4: #d29922;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; }
+  body { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+  aside { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--bg-alt); border-right: 1px solid var(--border); padding: 20px 0; }
+  aside h2 { margin: 0 20px 16px; font-size: 16px; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; }
+  aside nav a { display: block; padding: 8px 20px; color: var(--text-dim); text-decoration: none; border-left: 3px solid transparent; font-size: 14px; transition: all 0.15s; }
+  aside nav a:hover { color: var(--text); background: var(--bg-card); border-left-color: var(--accent); }
+  main { padding: 32px 48px 80px; max-width: 1200px; }
+  header.hero { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  header.hero h1 { margin: 0 0 8px; font-size: 30px; color: var(--accent); }
+  header.hero p { margin: 4px 0; color: var(--text-dim); font-size: 14px; }
+  .search-bar { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: 16px 0 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .search-bar input { width: 100%; padding: 12px 16px; font-size: 15px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; }
+  .search-bar input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(247, 129, 102, 0.15); }
+  .search-bar .hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+  .search-bar .count { font-size: 12px; color: var(--accent-3); margin-top: 6px; display: none; }
+  section { margin-bottom: 48px; scroll-margin-top: 90px; }
+  section h2 { color: var(--accent-2); font-size: 22px; margin: 0 0 6px; border-bottom: 2px solid var(--accent-2); padding-bottom: 6px; }
+  section .subtitle { color: var(--text-dim); font-size: 13px; margin-bottom: 18px; font-style: italic; }
+  .entry { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; transition: border-color 0.15s; }
+  .entry:hover { border-color: var(--accent); }
+  .entry .title { font-weight: 600; color: var(--accent); font-size: 16px; margin-bottom: 6px; }
+  .entry .desc { color: var(--text); font-size: 14px; margin-bottom: 10px; }
+  .entry .path { font-family: var(--mono); font-size: 12px; color: var(--accent-3); background: var(--bg); padding: 6px 10px; border-radius: 4px; display: inline-block; margin-bottom: 10px; border: 1px solid var(--border); word-break: break-all; }
+  .entry .tree { font-family: var(--mono); font-size: 12px; color: var(--text-dim); background: var(--bg); padding: 10px 14px; border-radius: 4px; white-space: pre; overflow-x: auto; border: 1px solid var(--border); }
+  .entry .tree .hl { color: var(--accent); font-weight: 600; }
+  .entry .tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 3px; background: var(--border); color: var(--text-dim); margin-right: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .entry .tag.api { background: #1f6feb33; color: #58a6ff; }
+  .entry .tag.core { background: #3fb95033; color: #3fb950; }
+  .entry .tag.infra { background: #d2992233; color: #d29922; }
+  .entry .tag.front { background: #f7816633; color: #f78166; }
+  .entry .tag.test { background: #a371f733; color: #a371f7; }
+  .entry .tag.hub { background: #db61a233; color: #db61a2; }
+  section.hidden-by-search, .entry.hidden-by-search { display: none; }
+  section.matches-search > h2 { color: var(--accent); border-bottom-color: var(--accent); }
+  mark { background: rgba(247, 129, 102, 0.3); color: var(--text); padding: 1px 2px; border-radius: 2px; }
+  @media (max-width: 900px) { body { grid-template-columns: 1fr; } aside { position: static; height: auto; } main { padding: 24px; } }
+</style>
+</head>
+<body>
+
+<aside>
+  <h2>Sistemas</h2>
+  <nav>
+    <a href="#overview">Visión general</a>
+    <a href="#combate-online">Combate online</a>
+    <a href="#combate-demo">Combate demo (turnos)</a>
+    <a href="#condiciones">Condiciones de combate</a>
+    <a href="#skills">Habilidades (skills)</a>
+    <a href="#stats">Stats</a>
+    <a href="#equipamiento">Equipamiento</a>
+    <a href="#inventario">Inventario</a>
+    <a href="#crafteo">Crafteo</a>
+    <a href="#experiencia">Experiencia · Niveles</a>
+    <a href="#personajes">Personajes</a>
+    <a href="#recursos">Recursos (HP/Mana/Ult)</a>
+    <a href="#powerscore">Power Score</a>
+    <a href="#social">Social (amigos/bloqueos)</a>
+    <a href="#chat">Chat</a>
+    <a href="#grupos">Grupos</a>
+    <a href="#mundo">Mundo / Ticks</a>
+    <a href="#hubs">Hubs SignalR</a>
+    <a href="#controllers">Controllers REST</a>
+    <a href="#persistencia">Persistencia / BD</a>
+    <a href="#frontend">Frontend Web</a>
+    <a href="#pwa">PWA</a>
+    <a href="#tests">Pruebas de integración</a>
+    <a href="#config">Configuración / Bootstrap</a>
+  </nav>
+</aside>
+
+<main>
+  <header class="hero">
+    <h1>WAR Backend · Mapa de código</h1>
+    <p>Referencia de ubicación precisa para acoplamiento con Unity.</p>
+    <p>C# · .NET 8 · ASP.NET Core · SignalR · EF Core · PostgreSQL (opcional)</p>
+    <p>Rama: <code>Rubén</code> · Worktree: <code>.claude/worktrees/confident-cartwright</code></p>
+  </header>
+
+  <div class="search-bar">
+    <input id="search" type="text" placeholder="🔍 Buscar sistema, clase, archivo, responsabilidad... (p. ej. 'combate', 'XP', 'EquipmentFormulas', 'cooldown')" autocomplete="off">
+    <div class="hint">La búsqueda filtra tarjetas por nombre, ruta, descripción y diagrama. Pulsa <kbd>/</kbd> para enfocar.</div>
+    <div class="count" id="count"></div>
+  </div>
+
+  <section id="overview">
+    <h2>Visión general del proyecto</h2>
+    <div class="subtitle">Solución multi-proyecto; raíz del worktree contiene WARBackend.sln y carpetas por proyecto.</div>
+
+    <div class="entry">
+      <span class="tag">solución</span>
+      <div class="title">Estructura de la solución</div>
+      <div class="desc">Proyectos organizados por capas: Api (host HTTP/SignalR), Core (dominio puro), Infrastructure (persistencia) y IntegrationTests (xUnit).</div>
+      <div class="path">WARBackend.sln</div>
+      <div class="tree">WARBackend/
+├── War.Api/              ← host ASP.NET Core + SignalR + wwwroot
+├── War.Core/             ← dominio (combate, skills, stats, equipo, progresión…)
+├── War.Infrastructure/   ← EF Core DbContext, entidades, migraciones
+├── War.IntegrationTests/ ← pruebas end-to-end sobre SignalR in-memory
+├── Dockerfile            ← contenedor para despliegue
+├── railway.json          ← config de Railway
+└── MAPA_CODIGO.html      ← este documento</div>
+    </div>
+  </section>
+
+  <section id="combate-online">
+    <h2>Sistema de combate online (multiplayer, server-authoritative)</h2>
+    <div class="subtitle">Pipeline de validación por fases, motor de resolución, constantes centralizadas y bucle de tick. Todo vive en War.Api/Application/GameWorld/.</div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">OnlineCombatService · Motor de resolución de combate</div>
+      <div class="desc">Fases A→I explícitas: hit check → crit (aditivo) → escalado dual (Magic+Physical por clase) → mitigación asintótica → modificadores aditivos con reducción por fuente capada al bono → sinergias de estado (colapso a 0) → condiciones → recursos. Incluye healing respetando afinidad del objetivo (Self/Ally).</div>
+      <div class="path">War.Api/Application/GameWorld/OnlineCombatService.cs</div>
+      <div class="tree">War.Api/
+└── Application/
+    └── GameWorld/
+        └── <span class="hl">OnlineCombatService.cs</span>   ← motor principal (fases A-I)</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">CombatValidationPipeline · Validación anti-exploit</div>
+      <div class="desc">Pipeline server-autorizado: lockout → rate limit → CC (stun/fear/silence) → GCD → coste de recursos → CastingUntil (cast-time lock). Split en ValidateFastChecks + RegisterCombatAction para evitar dobles validaciones.</div>
+      <div class="path">War.Api/Application/GameWorld/CombatValidationPipeline.cs</div>
+      <div class="tree">War.Api/Application/GameWorld/
+├── OnlineCombatService.cs
+└── <span class="hl">CombatValidationPipeline.cs</span>   ← gatekeeper de cada acción</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">CombatFormulaConstants · Números del combate</div>
+      <div class="desc">Centraliza todos los magic numbers: BaseHitChance, DefenseSoftCap, crit aditivo, tope de CooldownReduction (70%), tenacity cap, reducciones por fuente, tabla de sinergias de estado (Heat+Cold=×1.30, etc.).</div>
+      <div class="path">War.Api/Application/GameWorld/CombatFormulaConstants.cs</div>
+      <div class="tree">War.Api/Application/GameWorld/
+├── OnlineCombatService.cs
+├── CombatValidationPipeline.cs
+└── <span class="hl">CombatFormulaConstants.cs</span>   ← constantes + sinergias de estado</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">CombatTimingConstants · Tiempos globales</div>
+      <div class="desc">GCD (800 ms), ventana de combo (2 s), 6 etapas de combo, cooldown de ataque básico, cadencia de rate-limit anti-spam.</div>
+      <div class="path">War.Api/Application/GameWorld/CombatTimingConstants.cs</div>
+      <div class="tree">War.Api/Application/GameWorld/
+└── <span class="hl">CombatTimingConstants.cs</span>   ← GCD, combo, ventanas</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">WorldTickService · Bucle de tick del mundo</div>
+      <div class="desc">BackgroundService que corre cada 1 s bajo CombatLock por jugador: decremento de duraciones, DoTs, regen de mana, cooldowns, limpieza de jugadores inactivos, broadcast de cambios.</div>
+      <div class="path">War.Api/Application/GameWorld/WorldTickService.cs</div>
+      <div class="tree">War.Api/Application/GameWorld/
+└── <span class="hl">WorldTickService.cs</span>   ← tick 1s + CombatLock por jugador</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatEventResolver · Pipeline canónico compartido</div>
+      <div class="desc">Orquesta hit check → crits → mitigación → daño modificado → condiciones → recursos. Usado por el combate online y el demo.</div>
+      <div class="path">War.Core/Combat/CombatEventResolver.cs</div>
+      <div class="tree">War.Core/
+└── Combat/
+    └── <span class="hl">CombatEventResolver.cs</span></div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatEventModels · Contexto y resultados</div>
+      <div class="desc">Records de contexto (actor, target, acción, recursos, condiciones) y estructuras de resultado tras la resolución.</div>
+      <div class="path">War.Core/Combat/CombatEventModels.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatActionMagnitudeService · Magnitud base</div>
+      <div class="desc">Resuelve la magnitud: base fija + scaling (Physical / Magic / % HP faltante del objetivo). Soporta escalado dual (primario + secundario).</div>
+      <div class="path">War.Core/Combat/CombatActionMagnitudeService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatActionResourceService · Costos</div>
+      <div class="desc">Evalúa si el actor puede pagar el coste declarado (mana, HP) y proyecta los cambios.</div>
+      <div class="path">War.Core/Combat/CombatActionResourceService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatResourceProjectionService · Clamps</div>
+      <div class="desc">Proyecta cambios de HP/Mana y aplica restricciones (no-negativo, clamp a máximo, rechazar gasto si no alcanza).</div>
+      <div class="path">War.Core/Combat/CombatResourceProjectionService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatProbabilityChecks · RNG</div>
+      <div class="desc">RandomCombatProbabilityService: clampea probabilidades (0-1) y realiza el check aleatorio.</div>
+      <div class="path">War.Core/Combat/CombatProbabilityChecks.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatProtectionModels · Invulnerabilidad / bloqueos</div>
+      <div class="desc">Enums de protecciones: Invulnerability, bloqueos selectivos (Damage/Conditions/CC), políticas de refresh.</div>
+      <div class="path">War.Core/Combat/CombatProtectionModels.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">BasicAttackCatalog · Ataques básicos por clase</div>
+      <div class="desc">Definiciones de ataque básico con perfiles de combo (6 etapas), coeficientes duales Magic/Physical y ventanas.</div>
+      <div class="path">War.Core/Combat/BasicAttackCatalog.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">BasicAttackModels · Records del básico</div>
+      <div class="desc">BasicAttackDefinition, BasicAttackMagnitudeCoefficients (dual scaling), BasicAttackComboProfile (etapas, ventana, multiplicador).</div>
+      <div class="path">War.Core/Combat/BasicAttackModels.cs</div>
+    </div>
+  </section>
+
+  <section id="combate-demo">
+    <h2>Sistema de combate demo (turn-based, histórico)</h2>
+    <div class="subtitle">Flujo paralelo usado para pruebas deterministas turno a turno sobre BD. No se usa en multiplayer.</div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">DemoCombatExecutionService · Ejecución por turno</div>
+      <div class="desc">Carga personajes, valida acción, invoca el resolver canónico, persiste resultado.</div>
+      <div class="path">War.Api/Application/CombatDemo/DemoCombatExecutionService.cs</div>
+      <div class="tree">War.Api/Application/CombatDemo/
+├── <span class="hl">DemoCombatExecutionService.cs</span>   ← ejecuta turno
+├── DemoCombatRosterService.cs
+├── DemoCombatSessionService.cs
+├── CombatResultPersistenceService.cs
+└── CombatDemoDtos.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">DemoCombatRosterService · Roster de combate</div>
+      <div class="desc">Construye el roster con skills disponibles y cooldowns a partir del snapshot del personaje + catálogo runtime.</div>
+      <div class="path">War.Api/Application/CombatDemo/DemoCombatRosterService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">DemoCombatSessionService · Estado volátil</div>
+      <div class="desc">Singleton que mantiene condiciones activas, protecciones y cooldowns entre turnos del demo.</div>
+      <div class="path">War.Api/Application/CombatDemo/DemoCombatSessionService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">CombatResultPersistenceService · Persistencia del resultado</div>
+      <div class="desc">Persiste cambios de HP/Mana en BD, resuelve derrotas, registra audit trail del combate demo.</div>
+      <div class="path">War.Api/Application/CombatDemo/CombatResultPersistenceService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">CombatDemoDtos · Contratos del demo</div>
+      <div class="desc">Comandos de ataque básico/skill, contexto de ejecución, resultado de persistencia.</div>
+      <div class="path">War.Api/Application/CombatDemo/CombatDemoDtos.cs</div>
+    </div>
+  </section>
+
+  <section id="condiciones">
+    <h2>Condiciones de combate (estados, DoTs, CC)</h2>
+    <div class="subtitle">Catálogo, semántica, aplicación e interacciones viven en War.Core/Combat. Las sinergias son propiedad del combate (constantes, no catálogo).</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatConditionCatalog · Catálogo de condiciones</div>
+      <div class="desc">Definiciones inmutables de todos los tipos: Heat, Cold, Poison, Bleed, Stun, Silence, Blind, Fear, Electrified, etc.</div>
+      <div class="path">War.Core/Combat/CombatConditionCatalog.cs</div>
+      <div class="tree">War.Core/Combat/
+├── <span class="hl">CombatConditionCatalog.cs</span>
+├── CombatConditionSemantics.cs
+├── CombatConditionApplicationService.cs
+├── CombatConditionInteractionService.cs
+└── CombatConditionInteractions.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatConditionSemantics · Enums y categorías</div>
+      <div class="desc">Tipos (Heat, Cold, Stun…), categorías (State, DoT, CC), política de duración y prorrateo al re-aplicar.</div>
+      <div class="path">War.Core/Combat/CombatConditionSemantics.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatConditionApplicationService · Aplicación</div>
+      <div class="desc">Resuelve aplicación con chance y duración. Blind = accuracy 0 (no hit-chance × 0.5).</div>
+      <div class="path">War.Core/Combat/CombatConditionApplicationService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatConditionInteractionService · Incompatibilidades</div>
+      <div class="desc">Evalúa interacciones entre condiciones activas: reemplazos, removals, conflictos.</div>
+      <div class="path">War.Core/Combat/CombatConditionInteractionService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CombatConditionInteractions · Matriz</div>
+      <div class="desc">Modelo de la matriz de interacciones (Heat ⇄ Cold, Burn ⇄ Freeze, etc.).</div>
+      <div class="path">War.Core/Combat/CombatConditionInteractions.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">Sinergias de estado (state synergies)</div>
+      <div class="desc">No viven en catálogo: son propiedad del combate. El motor detecta 2 estados distintos en el target y aplica multiplicador (Heat+Cold=×1.30, etc.), luego colapsa todos a 0. Regla «máximo 2 estados, luego a 0».</div>
+      <div class="path">War.Api/Application/GameWorld/CombatFormulaConstants.cs → GetStateSynergyMultiplier()</div>
+      <div class="tree">Combate
+└── Sinergias
+    ├── Detección: <span class="hl">OnlineCombatService.cs</span> (fase de condiciones)
+    └── Tabla:     <span class="hl">CombatFormulaConstants.cs → GetStateSynergyMultiplier()</span></div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <h2>Sistema de habilidades (52 skills: 4 clases × 13 slots)</h2>
+    <div class="subtitle">Dominio en War.Core/Skills. Catálogos programados + capa de publicación admin (BD) + composer runtime. Cast times individuales por skill (secreto del servidor).</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">SkillModels · Contratos base</div>
+      <div class="desc">Records/enums principales: ActionType (Damage/Heal/Utility), DamageType (Physical/Magical/True), ScalingType, SkillCadenceProfile (incluye CastTimeSeconds, default 0.30), SkillMagnitudeProfile (incluye SecondaryScalingType + SecondaryScalingCoefficient para escalado dual).</div>
+      <div class="path">War.Core/Skills/SkillModels.cs</div>
+      <div class="tree">War.Core/
+└── Skills/
+    ├── <span class="hl">SkillModels.cs</span>              ← enums + SkillCadenceProfile + SkillMagnitudeProfile
+    ├── SkillCatalogModels.cs
+    ├── SkillCatalogRegistry.cs
+    ├── SkillCatalogRules.cs
+    ├── SkillCombatIntegration.cs
+    ├── SkillProgressModels.cs
+    ├── SkillSlot.cs
+    ├── ClassType.cs
+    └── Catalogs/
+        ├── SorcererSkillCatalog.cs
+        ├── JuramentadaSkillCatalog.cs
+        ├── LanceroSkillCatalog.cs
+        └── BruiserSkillCatalog.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">SkillCatalogRegistry · Registro estático</div>
+      <div class="desc">Current catalog, búsqueda por ID de skill, composición inicial con los 4 catálogos de clase.</div>
+      <div class="path">War.Core/Skills/SkillCatalogRegistry.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">SkillCatalogRules · Constantes</div>
+      <div class="desc">4 clases, 13 skills por clase, nivel mínimo 1, ascensión 1-10.</div>
+      <div class="path">War.Core/Skills/SkillCatalogRules.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">SkillCatalogModels · Modelos del catálogo</div>
+      <div class="desc">ClassSkillCatalog (orden por clase) y SkillValidationIssue para diagnósticos.</div>
+      <div class="path">War.Core/Skills/SkillCatalogModels.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">SkillCombatIntegration · Puente skill↔combate</div>
+      <div class="desc">SkillCadenceSnapshot (cooldown base/efectivo, recovery), SkillCombatTranslationContext.</div>
+      <div class="path">War.Core/Skills/SkillCombatIntegration.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">SkillProgressModels · Progreso por personaje</div>
+      <div class="desc">CharacterSkillProgress (ID, unlocked, ascensión), colección con lookup por ID.</div>
+      <div class="path">War.Core/Skills/SkillProgressModels.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">SkillSlot / ClassType · Enums</div>
+      <div class="desc">13 slots por clase (enum SkillSlot) y 4 clases (enum ClassType: Sorcerer, Juramentada, Lancero, Bruiser).</div>
+      <div class="path">War.Core/Skills/SkillSlot.cs · War.Core/Skills/ClassType.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">SorcererSkillCatalog · 13 skills mágicas</div>
+      <div class="desc">Escalado dual 90% Magic + 10% Physical. Cast times individuales 0.35s–1.50s (ultimate). Meteorito Escarlata emite daño Physical aunque es clase mágica.</div>
+      <div class="path">War.Core/Skills/Catalogs/SorcererSkillCatalog.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">JuramentadaSkillCatalog · 13 skills híbridas</div>
+      <div class="desc">Escalado dual 60% Magic + 40% Physical. Cast times 0.25s–1.30s. 4 skills emiten Physical: Golpe Sagrado, Laceración Impía, Cadenas de Luz, Flagelo Purificador.</div>
+      <div class="path">War.Core/Skills/Catalogs/JuramentadaSkillCatalog.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">LanceroSkillCatalog · 13 skills físicas rápidas</div>
+      <div class="desc">Escalado dual 60% Physical + 40% Magic. Cast times 0.20s–1.10s (la clase más rápida). 5 skills Electrified emiten Magical.</div>
+      <div class="path">War.Core/Skills/Catalogs/LanceroSkillCatalog.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">BruiserSkillCatalog · 13 skills físicas pesadas</div>
+      <div class="desc">Escalado dual 90% Physical + 10% Magic. Cast times 0.30s–1.80s (la clase más lenta). Rugido de Furia emite Magical.</div>
+      <div class="path">War.Core/Skills/Catalogs/BruiserSkillCatalog.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">SkillRuntimeCatalogProvider · Catálogo efectivo en runtime</div>
+      <div class="desc">Resuelve skills en runtime: sobreescribe programadas con publicadas (BD). Expone versión y timestamp.</div>
+      <div class="path">War.Api/Application/SkillRuntime/SkillRuntimeCatalogProvider.cs</div>
+      <div class="tree">War.Api/Application/SkillRuntime/
+├── <span class="hl">SkillRuntimeCatalogProvider.cs</span>
+└── RuntimeSkillCatalogComposer.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">RuntimeSkillCatalogComposer · Merge published ⇄ programmed</div>
+      <div class="desc">Compone el catálogo: lógica de override, validación del merge por clase.</div>
+      <div class="path">War.Api/Application/SkillRuntime/RuntimeSkillCatalogComposer.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">SkillAdminCatalogService · CRUD de skills publicables</div>
+      <div class="desc">Importa, consulta, crea y actualiza definiciones de skills en BD. Orquesta publicación (Draft→Published→Archived).</div>
+      <div class="path">War.Api/Application/SkillAdmin/SkillAdminCatalogService.cs</div>
+      <div class="tree">War.Api/Application/SkillAdmin/
+├── <span class="hl">SkillAdminCatalogService.cs</span>
+├── SkillAdminDtos.cs
+├── SkillAdminJsonSerializer.cs
+└── SkillAdminOptionsService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">SkillAdminDtos · Estados editoriales</div>
+      <div class="desc">Enums: origen (Import/Created), estado de completitud, estado de publicación (Draft/Published/Archived).</div>
+      <div class="path">War.Api/Application/SkillAdmin/SkillAdminDtos.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">SkillAdminJsonSerializer · JSON custom</div>
+      <div class="desc">Wrapper de JsonSerializer con opciones específicas para definiciones de skills.</div>
+      <div class="path">War.Api/Application/SkillAdmin/SkillAdminJsonSerializer.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">SkillAdminOptionsService · Enums para UI</div>
+      <div class="desc">Provee opciones de enum al admin: clases, slots, tipos de daño, escalados, condiciones.</div>
+      <div class="path">War.Api/Application/SkillAdmin/SkillAdminOptionsService.cs</div>
+    </div>
+  </section>
+
+  <section id="stats">
+    <h2>Sistema de stats</h2>
+    <div class="subtitle">Catálogo central + resolvers (mitigación, hit chance, crit, CC duration) + calculadora. Todo en War.Core/Stats.</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">StatType · Enum maestro de stats</div>
+      <div class="desc">MaxHp, MaxMana, PhysicalAttack, MagicAttack, PhysicalDefense, MagicDefense, Accuracy, Evasion, CritChance, CritDamage, CritDamageTakenReduction, HpRegen, ManaRegen, CooldownReduction, Tenacity, ExpGain, MovementSpeed… etc.</div>
+      <div class="path">War.Core/Stats/StatType.cs</div>
+      <div class="tree">War.Core/
+└── Stats/
+    ├── <span class="hl">StatType.cs</span>             ← enum maestro
+    ├── StatTypeExtensions.cs
+    ├── StatCategory.cs
+    ├── StatCatalog.cs
+    ├── StatDefinition.cs
+    ├── StatSemantics.cs
+    ├── StatContribution.cs
+    ├── StatContributionType.cs
+    ├── StatResolutionModels.cs
+    ├── StatResolvers.cs
+    ├── StatsCalculator.cs
+    ├── FinalStats.cs
+    ├── IStatSource.cs
+    └── DummyStatSource.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">StatCatalog · Catálogo inmutable</div>
+      <div class="desc">Definiciones de todos los stats del juego: tipo, descripción, categoría, escala, unidad, comportamiento.</div>
+      <div class="path">War.Core/Stats/StatCatalog.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">StatDefinition · Contrato de un stat</div>
+      <div class="desc">Records: ValueKind/Scale, unidad de medición, familia de comportamiento, uso, modo de resolución.</div>
+      <div class="path">War.Core/Stats/StatDefinition.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">StatCategory · Agrupación funcional</div>
+      <div class="desc">CombatResource, Offensive, Defensive, Recovery, Healing, Utility, Progression, StatusApplication, StatusEvasion.</div>
+      <div class="path">War.Core/Stats/StatCategory.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">StatSemantics · Banderas de uso</div>
+      <div class="desc">SystemQueryStage (Build, ResourceValidation, Damage, Healing, HitCheck…), Influences, Constraint. Dice qué stat entra en qué fase del pipeline.</div>
+      <div class="path">War.Core/Stats/StatSemantics.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">StatResolvers · Curvas de combate</div>
+      <div class="desc">IMitigationResolver (asintótica 90% cap), IHitChanceResolver, ICriticalChanceResolver, ICrowdControlDurationResolver. Implementaciones concretas.</div>
+      <div class="path">War.Core/Stats/StatResolvers.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">StatResolutionModels · Datos de resolución</div>
+      <div class="desc">MitigationResolution, HitChanceResolution, opciones de curvado.</div>
+      <div class="path">War.Core/Stats/StatResolutionModels.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">StatsCalculator · Calculadora central</div>
+      <div class="desc">Calcula FinalStats desde múltiples IStatSource: agrupa contribuciones por stat y aplica orden (base → flat → porcentaje).</div>
+      <div class="path">War.Core/Stats/StatsCalculator.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">FinalStats · Resultado final</div>
+      <div class="desc">Dict mutable de valores + contributions tracking. Interface read-only para consumidores.</div>
+      <div class="path">War.Core/Stats/FinalStats.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">IStatSource · Aporte de stats</div>
+      <div class="desc">Interface implementada por cada fuente (nivel de clase, equipo, buffs, skills).</div>
+      <div class="path">War.Core/Stats/IStatSource.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">StatContribution · Aportación individual</div>
+      <div class="desc">SourceName, valor, tipo (Flat o Percentage).</div>
+      <div class="path">War.Core/Stats/StatContribution.cs · War.Core/Stats/StatContributionType.cs</div>
+    </div>
+  </section>
+
+  <section id="equipamiento">
+    <h2>Sistema de equipamiento</h2>
+    <div class="subtitle">9 slots · 4 raridades · tier 1-4 · desarrollo 1-30. 189 definiciones base generadas desde plantillas. Todo en War.Core/Equipment.</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">EquipmentModels · Contratos</div>
+      <div class="desc">Enums: EquipmentSlot (9 = 6 específicos de clase + 3 globales), EquipmentRarity (4 niveles), EquipmentVariant (Offensive/Defensive/Hybrid). Records: EquipmentDefinition, EquipmentStatGrant, EquipmentInstance. EquipmentLoadoutHelper lee inventario como única fuente de verdad.</div>
+      <div class="path">War.Core/Equipment/EquipmentModels.cs</div>
+      <div class="tree">War.Core/
+└── Equipment/
+    ├── <span class="hl">EquipmentModels.cs</span>
+    ├── EquipmentFormulas.cs
+    ├── EquipmentCatalog.cs
+    ├── EquipmentStatService.cs
+    ├── InventoryModels.cs
+    └── CraftingService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">EquipmentFormulas · Matemáticas de escalado</div>
+      <div class="desc">StatFinal = StatBase × TierMult × DevMult × RarityMult. Tier multipliers {1.00, 1.25, 1.55, 1.90}. Desarrollo = 1 + 0.65 × ln(n). Rarity multipliers {1, 8, 60, 450}. Regla clave: T1 dev30 (3.21) &gt; T4 dev1 (1.90). Crafteo: 2 × TierN → 1 × Tier(N+1) dev1.</div>
+      <div class="path">War.Core/Equipment/EquipmentFormulas.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">EquipmentCatalog · 189 definiciones base</div>
+      <div class="desc">Generadas programáticamente desde plantillas por slot: 6 slots específicos × 4 clases × 7 variantes + 3 slots globales × 7. Stats distribuidos orgánicamente (arma=ataque, casco=precisión, etc.).</div>
+      <div class="path">War.Core/Equipment/EquipmentCatalog.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">EquipmentStatService · Stats efectivos</div>
+      <div class="desc">CalculateInstanceStats, CalculateEquippedStats, BuildLoadoutDto, CompareInstances. Aplica Tier × Dev × Rareza.</div>
+      <div class="path">War.Core/Equipment/EquipmentStatService.cs</div>
+    </div>
+  </section>
+
+  <section id="inventario">
+    <h2>Sistema de inventario (server-authoritative, 60 slots)</h2>
+    <div class="subtitle">Única fuente de verdad. Los ítems equipados se marcan, no se duplican. Protecciones anti-exploit en cada mutación.</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">InventoryModels · Modelo del inventario</div>
+      <div class="desc">PlayerInventory de 60 slots; InventoryItem con ItemType (Equipment/Gem/Resource/Special). Stacking: Equipment/Gem = 1 por slot; Resource/Special apilables. Anti-exploit: equipados no se pueden remover, equip valida slot, no se permite duplicar equipo.</div>
+      <div class="path">War.Core/Equipment/InventoryModels.cs</div>
+      <div class="tree">War.Core/
+└── Equipment/
+    └── <span class="hl">InventoryModels.cs</span>   ← PlayerInventory + InventoryItem + ItemType</div>
+    </div>
+  </section>
+
+  <section id="crafteo">
+    <h2>Sistema de crafteo (con audit trail)</h2>
+    <div class="subtitle">Dos operaciones: desarrollo (+1) y tier-up (2→1). Atómicas, con validación estricta y registro de auditoría.</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CraftingService · Lógica atómica</div>
+      <div class="desc">Develop(): +1 a desarrollo con validación. CraftTierUp(): 2→1 con 9 pasos de validación, ejecución atómica y CraftAuditEntry registrando jugador, timestamps, inputs/outputs.</div>
+      <div class="path">War.Core/Equipment/CraftingService.cs</div>
+      <div class="tree">War.Core/
+└── Equipment/
+    └── <span class="hl">CraftingService.cs</span>   ← Develop() + CraftTierUp() + CraftAuditEntry</div>
+    </div>
+  </section>
+
+  <section id="experiencia">
+    <h2>Sistema de experiencia y niveles</h2>
+    <div class="subtitle">Pipeline XP: base de mob → reparto grupal → ExpGain stat → buffs temporales → otorgamiento y level-ups. Dominio en War.Core/Progression.</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">ExperienceService · Pipeline de XP</div>
+      <div class="desc">ProcessMobKill() y GrantDirectExperience(). Incluye MobCatalog (fórmula 50 + nivel×12 + nivel²×0.8), XpBuffManager (multiplicadores temporales: pastillas de vigor) y XpBuffCatalog (Minor/Major/Supreme + eventos de servidor). Modelos: ExperienceRecipient, ExperienceGrantResult con desglose completo.</div>
+      <div class="path">War.Core/Progression/ExperienceService.cs</div>
+      <div class="tree">War.Core/
+└── Progression/
+    ├── <span class="hl">ExperienceService.cs</span>    ← pipeline XP + MobCatalog + XpBuffManager
+    ├── CharacterLevelProgression.cs
+    ├── CharacterLevelRules.cs
+    ├── CharacterLevelModels.cs
+    ├── CharacterLevelStatSource.cs
+    ├── ClassLevelGrowthProfiles.cs
+    ├── CharacterFinalStatsBuilder.cs
+    ├── CharacterSnapshotFactory.cs
+    ├── CharacterSnapshotModels.cs
+    └── LevelProgressionFairnessAudit.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterLevelProgression · Transiciones de nivel</div>
+      <div class="desc">Transiciones por nivel, XP acumulado, otorgamiento con cascada de level-ups.</div>
+      <div class="path">War.Core/Progression/CharacterLevelProgression.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterLevelRules · Reglas del sistema</div>
+      <div class="desc">Nivel mín 1, máx 80, XP base 1000, multiplicador compuesto 1.2, bonus de hito por década 1.5×.</div>
+      <div class="path">War.Core/Progression/CharacterLevelRules.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterLevelModels · Records</div>
+      <div class="desc">CharacterLevelTransition (XP requerido, multiplicador), CharacterLevelProgress (nivel, XP, estado).</div>
+      <div class="path">War.Core/Progression/CharacterLevelModels.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterLevelStatSource · Stats por nivel</div>
+      <div class="desc">IStatSource que aporta stats según ClassLevelGrowthProfile (ganancia por nivel).</div>
+      <div class="path">War.Core/Progression/CharacterLevelStatSource.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">ClassLevelGrowthProfiles · Crecimiento por clase</div>
+      <div class="desc">Catálogo de ganancias de stats por nivel y por clase.</div>
+      <div class="path">War.Core/Progression/ClassLevelGrowthProfiles.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterFinalStatsBuilder · Constructor de FinalStats</div>
+      <div class="desc">Ensambla FinalStats desde clase + nivel + fuentes adicionales (equipo, buffs).</div>
+      <div class="path">War.Core/Progression/CharacterFinalStatsBuilder.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterSnapshotFactory · Snapshot presentable</div>
+      <div class="desc">Crea ProfileSnapshot desde request: construye stats, calcula power score, incluye skills.</div>
+      <div class="path">War.Core/Progression/CharacterSnapshotFactory.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterSnapshotModels · Contratos de snapshot</div>
+      <div class="desc">ResourceSnapshot (HP/Mana/Ultimate), ProfileSnapshotRequest con contexto.</div>
+      <div class="path">War.Core/Progression/CharacterSnapshotModels.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">LevelProgressionFairnessAudit · Auditoría de balance</div>
+      <div class="desc">Mide delta de power score entre niveles. Detecta desbalances de clase.</div>
+      <div class="path">War.Core/Progression/LevelProgressionFairnessAudit.cs</div>
+    </div>
+  </section>
+
+  <section id="personajes">
+    <h2>Sistema de personajes (persistencia + demo)</h2>
+    <div class="subtitle">Flujos de seeding, consultas de snapshot y runtime persisted. Dominio en War.Api/Application/Characters y War.Core/Entities.</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">Character · Entity de dominio</div>
+      <div class="desc">Entidad central: Guid, ClassType, Level, FinalStats, CharacterResources.</div>
+      <div class="path">War.Core/Entities/Character.cs</div>
+      <div class="tree">War.Core/
+└── Entities/
+    └── <span class="hl">Character.cs</span></div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">DemoCharacterCatalog · Personajes demo</div>
+      <div class="desc">Definiciones: clave, clase, nivel, progreso, skills iniciales, recursos iniciales.</div>
+      <div class="path">War.Api/Application/Characters/DemoCharacterCatalog.cs</div>
+      <div class="tree">War.Api/Application/Characters/
+├── DemoCharacterCatalog.cs
+├── DemoCharacterSeedService.cs
+├── PersistedCharacterRuntimeService.cs
+├── CharacterSnapshotQueryService.cs
+├── CharacterSnapshotPresentationCatalog.cs
+├── CharacterSnapshotDtos.cs
+├── DatabaseSchemaCompatibilityService.cs
+└── WarApiStartupInitializer.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">DemoCharacterSeedService · Seeding al arranque</div>
+      <div class="desc">Inicializa los personajes demo en BD al startup (reset incluido). Orquesta progression + stats builder.</div>
+      <div class="path">War.Api/Application/Characters/DemoCharacterSeedService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">PersistedCharacterRuntimeService · Runtime desde BD</div>
+      <div class="desc">Carga entidad + Character + progreso + recursos + skill progress para uso en combate demo.</div>
+      <div class="path">War.Api/Application/Characters/PersistedCharacterRuntimeService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">CharacterSnapshotQueryService · Consultas</div>
+      <div class="desc">Recupera snapshots persisted/demo, provee IDs de personajes demo.</div>
+      <div class="path">War.Api/Application/Characters/CharacterSnapshotQueryService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">CharacterSnapshotPresentationCatalog · Metadata UI</div>
+      <div class="desc">Para cada stat: sección, orden, tipo de valor (número/porcentaje), formatos localizados.</div>
+      <div class="path">War.Api/Application/Characters/CharacterSnapshotPresentationCatalog.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">CharacterSnapshotDtos · Contratos de presentación</div>
+      <div class="desc">CharacterSnapshotDto, progreso, recursos, stats, power score, combo básico.</div>
+      <div class="path">War.Api/Application/Characters/CharacterSnapshotDtos.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">DatabaseSchemaCompatibilityService · Migración legacy</div>
+      <div class="desc">Valida compatibilidad de schema, aplica baseline legacy si corresponde.</div>
+      <div class="path">War.Api/Application/Characters/DatabaseSchemaCompatibilityService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">WarApiStartupInitializer · Orquestador de arranque</div>
+      <div class="desc">Valida BD → seeding demo → inicializa skill catalog admin.</div>
+      <div class="path">War.Api/Application/Characters/WarApiStartupInitializer.cs</div>
+    </div>
+  </section>
+
+  <section id="recursos">
+    <h2>Sistema de recursos del personaje (HP / Mana / Ultimate)</h2>
+    <div class="subtitle">Catálogo de tipos de recursos con constraints explícitas. Dominio en War.Core/Resources.</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterResourceCatalog · Catálogo inmutable</div>
+      <div class="desc">Definiciones de todos los recursos: HP, Mana, Ultimate Charge.</div>
+      <div class="path">War.Core/Resources/CharacterResourceCatalog.cs</div>
+      <div class="tree">War.Core/
+└── Resources/
+    ├── <span class="hl">CharacterResourceCatalog.cs</span>
+    ├── CharacterResourceDefinition.cs
+    ├── CharacterResourceType.cs
+    ├── CharacterResourceTypeExtensions.cs
+    └── CharacterResources.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterResourceDefinition · Constraints</div>
+      <div class="desc">Tipo, descripción, constraints (NonNegative, ClampToMax, RejectSpend si no alcanza).</div>
+      <div class="path">War.Core/Resources/CharacterResourceDefinition.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterResourceType · Enum</div>
+      <div class="desc">Hp, Mana, UltimateCharge.</div>
+      <div class="path">War.Core/Resources/CharacterResourceType.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterResourceTypeExtensions · Helpers</div>
+      <div class="desc">Acceso a definición, stat máximo asociado, banderas runtime.</div>
+      <div class="path">War.Core/Resources/CharacterResourceTypeExtensions.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">CharacterResources · Estado actual</div>
+      <div class="desc">CurrentHp, CurrentMana, UltimateCharge con acceso indexado.</div>
+      <div class="path">War.Core/Resources/CharacterResources.cs</div>
+    </div>
+  </section>
+
+  <section id="powerscore">
+    <h2>Sistema de Power Score</h2>
+    <div class="subtitle">Métrica global de poder combinando stats, skills y equipo. Dominio en War.Core/PowerScore.</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">PowerScoreCalculator · Cálculo principal</div>
+      <div class="desc">Combina stats + skills + equipo usando PolicyCatalog y PowerScoreUsageAnalysis.</div>
+      <div class="path">War.Core/PowerScore/PowerScoreCalculator.cs</div>
+      <div class="tree">War.Core/
+└── PowerScore/
+    ├── <span class="hl">PowerScoreCalculator.cs</span>
+    ├── PowerScoreClassProfiles.cs
+    ├── PowerScoreModels.cs
+    ├── PowerScorePolicyCatalog.cs
+    └── PowerScoreUsageAnalysis.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">PowerScoreClassProfiles · Perfiles por clase</div>
+      <div class="desc">Scaling básico por clase: tipo, damage type, hit check, crit, recovery.</div>
+      <div class="path">War.Core/PowerScore/PowerScoreClassProfiles.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">PowerScoreModels · Enums y resultado</div>
+      <div class="desc">Category (Offensive/Defensive/Recovery), StatInclusion (Direct / IndirectLowWeight), PowerScoreResult.</div>
+      <div class="path">War.Core/PowerScore/PowerScoreModels.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">PowerScorePolicyCatalog · Ponderaciones</div>
+      <div class="desc">Inmutable: políticas de ponderación por StatType, tuning global, audit trail.</div>
+      <div class="path">War.Core/PowerScore/PowerScorePolicyCatalog.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">PowerScoreUsageAnalysis · Análisis de uso</div>
+      <div class="desc">Lee disponibilidad de skills, resuelve ascensión, usa analyzer de clase. Lee escalado secundario para skills de stat dual.</div>
+      <div class="path">War.Core/PowerScore/PowerScoreUsageAnalysis.cs</div>
+    </div>
+  </section>
+
+  <section id="social">
+    <h2>Sistema social (amigos, bloqueos, perfiles)</h2>
+    <div class="subtitle">Dominio en War.Core/Social; servicios y REST en War.Api/Application/Social.</div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">SocialConfiguration · Constantes sociales</div>
+      <div class="desc">Rango de interacción 15 m, descubrimiento 25 m, rate limit chat 10 msg/5 s.</div>
+      <div class="path">War.Core/Social/SocialConfiguration.cs</div>
+      <div class="tree">War.Core/
+└── Social/
+    ├── <span class="hl">SocialConfiguration.cs</span>
+    ├── SocialModels.cs
+    └── InputSanitizer.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">SocialModels · Modelos de relación</div>
+      <div class="desc">SocialRelationshipType (Friend/Blocked flags), FriendRequestStatus, models de proximity check.</div>
+      <div class="path">War.Core/Social/SocialModels.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag core">CORE</span>
+      <div class="title">InputSanitizer · Saneo de entradas</div>
+      <div class="desc">Límite 500 chars por mensaje, 30 chars por nombre, remueve HTML y Unicode invisible.</div>
+      <div class="path">War.Core/Social/InputSanitizer.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">ISocialRelationshipService · Contrato</div>
+      <div class="desc">Amistades, bloqueos, solicitudes, consultas de relaciones.</div>
+      <div class="path">War.Api/Application/Social/ISocialRelationshipService.cs</div>
+      <div class="tree">War.Api/Application/Social/
+├── <span class="hl">ISocialRelationshipService.cs</span>
+├── SocialRelationshipService.cs
+├── InMemorySocialRelationshipService.cs
+├── ProximityValidationService.cs
+├── PublicProfileService.cs
+├── ChatRelayService.cs
+├── ChatRateLimiter.cs
+└── SocialDtos.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">SocialRelationshipService · Impl con BD</div>
+      <div class="desc">Scoped, usa EF Core: crea/acepta/rechaza solicitudes, gestiona amistades, bloqueos, validación de proximidad.</div>
+      <div class="path">War.Api/Application/Social/SocialRelationshipService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">InMemorySocialRelationshipService · Impl en RAM</div>
+      <div class="desc">Evanescente para demo. Limpia en desconexión.</div>
+      <div class="path">War.Api/Application/Social/InMemorySocialRelationshipService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">ProximityValidationService · Rango de interacción</div>
+      <div class="desc">Valida que dos personajes estén a ≤ 15 m antes de acciones sociales.</div>
+      <div class="path">War.Api/Application/Social/ProximityValidationService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">PublicProfileService · Cache de perfiles</div>
+      <div class="desc">Singleton con TTL eviction custom. Obtiene datos de BD con scope factory.</div>
+      <div class="path">War.Api/Application/Social/PublicProfileService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">SocialDtos · Contratos REST</div>
+      <div class="desc">Solicitudes de amistad, bloqueos, listas de amigos, perfiles públicos.</div>
+      <div class="path">War.Api/Application/Social/SocialDtos.cs</div>
+    </div>
+  </section>
+
+  <section id="chat">
+    <h2>Sistema de chat</h2>
+    <div class="subtitle">ChatHub SignalR + relay + rate limiter. Respeta bloqueos y proximidad.</div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">ChatRelayService · Retransmisión</div>
+      <div class="desc">Reenvía mensajes vía SignalR validando proximidad, bloqueos, rate limit y sanitización.</div>
+      <div class="path">War.Api/Application/Social/ChatRelayService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">ChatRateLimiter · Limitador por personaje</div>
+      <div class="desc">In-memory: 10 mensajes / 5 s; penalización de 30 s al excederlo.</div>
+      <div class="path">War.Api/Application/Social/ChatRateLimiter.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag hub">HUB</span>
+      <div class="title">ChatHub · SignalR Hub de chat</div>
+      <div class="desc">OnConnect / OnDisconnect, retransmisión vía ChatRelayService, mapping de conexiones.</div>
+      <div class="path">War.Api/Hubs/ChatHub.cs</div>
+      <div class="tree">War.Api/
+└── Hubs/
+    ├── <span class="hl">ChatHub.cs</span>
+    └── GameHub.cs</div>
+    </div>
+  </section>
+
+  <section id="grupos">
+    <h2>Sistema de grupos (party play)</h2>
+    <div class="subtitle">Heals, buffs, reparto de XP, invitaciones por proximidad. In-memory.</div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">GroupService · Gestión de grupos</div>
+      <div class="desc">Creación / invitación / aceptación / kick / leave, promoción de líder, validación de proximidad, limpieza en desconexión. Modelos: OnlineGroup, GroupInvitation.</div>
+      <div class="path">War.Api/Application/GameWorld/GroupService.cs</div>
+      <div class="tree">War.Api/Application/GameWorld/
+└── <span class="hl">GroupService.cs</span>   ← OnlineGroup + GroupInvitation</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag hub">HUB</span>
+      <div class="title">Endpoints de grupo en GameHub</div>
+      <div class="desc">CreateGroup, InviteToGroup, AcceptGroupInvite, DeclineGroupInvite, LeaveGroup, KickFromGroup. El reparto de XP entre miembros se hace en ExperienceService.</div>
+      <div class="path">War.Api/Hubs/GameHub.cs</div>
+    </div>
+  </section>
+
+  <section id="mundo">
+    <h2>Mundo online y bucle de tick</h2>
+    <div class="subtitle">Estado multiplayer in-memory, proximidad por grid, broadcast de cambios.</div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">GameWorldService · Estado del mundo</div>
+      <div class="desc">Singleton que mantiene jugadores online en RAM: spawning, movimiento, visibilidad (15 m por defecto).</div>
+      <div class="path">War.Api/Application/GameWorld/GameWorldService.cs</div>
+      <div class="tree">War.Api/Application/GameWorld/
+├── <span class="hl">GameWorldService.cs</span>
+├── GameWorldModels.cs
+├── GameWorldProximityProvider.cs
+└── WorldTickService.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">GameWorldModels · OnlinePlayer</div>
+      <div class="desc">OnlinePlayer con posición, recursos, stats, skills, CastingUntil, GroupId, CombatLock. OnlinePlayerSkill con estado de cooldown.</div>
+      <div class="path">War.Api/Application/GameWorld/GameWorldModels.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">GameWorldProximityProvider · Distancias</div>
+      <div class="desc">Calcula distancias entre jugadores online según sus posiciones en grid (0-99).</div>
+      <div class="path">War.Api/Application/GameWorld/GameWorldProximityProvider.cs</div>
+    </div>
+  </section>
+
+  <section id="hubs">
+    <h2>Hubs SignalR</h2>
+    <div class="subtitle">Dos hubs: GameHub (combate/mundo/grupos/social integrado) y ChatHub (mensajería). Todas las acciones de combate pasan por CombatLock por jugador.</div>
+
+    <div class="entry">
+      <span class="tag hub">HUB</span>
+      <div class="title">GameHub · Hub principal del mundo</div>
+      <div class="desc">Spawn, movimiento, ataque básico, uso de skills (con resolución de afinidad de objetivo Self/Ally/Enemy/Any), métodos de grupo (Create/Invite/Accept/Decline/Leave/Kick), CombatLock en operaciones de combate, configuración de CastTime por acción, RecordAction consistente entre BasicAttack y UseSkill.</div>
+      <div class="path">War.Api/Hubs/GameHub.cs</div>
+      <div class="tree">War.Api/
+└── Hubs/
+    ├── <span class="hl">GameHub.cs</span>   ← spawn, movimiento, combate, grupos
+    └── ChatHub.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag hub">HUB</span>
+      <div class="title">ChatHub · Hub de chat</div>
+      <div class="desc">Conexión, retransmisión validada, connection mapping.</div>
+      <div class="path">War.Api/Hubs/ChatHub.cs</div>
+    </div>
+  </section>
+
+  <section id="controllers">
+    <h2>Controllers REST</h2>
+    <div class="subtitle">Endpoints HTTP clásicos para panel admin, demo de combate, perfiles, tests.</div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">CharactersController · Endpoints de personaje</div>
+      <div class="desc">GET snapshot de personaje, GET roster de combate demo.</div>
+      <div class="path">War.Api/Controllers/CharactersController.cs</div>
+      <div class="tree">War.Api/
+└── Controllers/
+    ├── <span class="hl">CharactersController.cs</span>
+    ├── CombatDemoController.cs
+    ├── SkillAdminController.cs
+    ├── SocialController.cs
+    ├── StatsTestController.cs
+    └── TestController.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">CombatDemoController · Combate por turnos</div>
+      <div class="desc">Ejecuta combate, obtiene roster, maneja sesión demo, reset.</div>
+      <div class="path">War.Api/Controllers/CombatDemoController.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">SkillAdminController · CRUD admin</div>
+      <div class="desc">CRUD de skills admin, import, publish, opciones de enums para la UI.</div>
+      <div class="path">War.Api/Controllers/SkillAdminController.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">SocialController · Social vía REST</div>
+      <div class="desc">Amistades, bloqueos, solicitudes, perfiles públicos, validación de proximidad.</div>
+      <div class="path">War.Api/Controllers/SocialController.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">StatsTestController · Debug de stats</div>
+      <div class="desc">Endpoint de test para cálculo de stats.</div>
+      <div class="path">War.Api/Controllers/StatsTestController.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">TestController · Debug general</div>
+      <div class="desc">Endpoints de debug: seeding, list skills, test queries.</div>
+      <div class="path">War.Api/Controllers/TestController.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">UiStrings · Localización</div>
+      <div class="desc">Strings en español: errores de chat, social, validaciones.</div>
+      <div class="path">War.Api/Localization/UiStrings.cs</div>
+    </div>
+  </section>
+
+  <section id="persistencia">
+    <h2>Persistencia (EF Core + PostgreSQL)</h2>
+    <div class="subtitle">DbContext, entidades y migraciones. El proyecto War.Infrastructure aísla toda la infraestructura de datos.</div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">WarDbContext · DbContext principal</div>
+      <div class="desc">DbSets: Character, CharacterSkillProgress, AdminSkillRecord, SocialRelationship, FriendRequest.</div>
+      <div class="path">War.Infrastructure/Persistence/WarDbContext.cs</div>
+      <div class="tree">War.Infrastructure/
+└── Persistence/
+    ├── <span class="hl">WarDbContext.cs</span>
+    ├── CharacterEntity.cs
+    ├── CharacterSkillProgressEntity.cs
+    ├── AdminSkillRecordEntity.cs
+    ├── SocialRelationshipEntity.cs
+    ├── FriendRequestEntity.cs
+    └── Migrations/
+        ├── 20260312211435_InitialCharacterSnapshotFlow.cs
+        ├── 20260314221528_AdminSkillCatalog.cs
+        ├── 20260315001919_AdminSkillPublicationFlow.cs
+        ├── 20260315023419_BasicAttackComboState.cs
+        └── WarDbContextModelSnapshot.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">CharacterEntity · Personaje persistible</div>
+      <div class="desc">Guid, Name, ClassType, Level, XP, recursos, HP/Mana snapshots.</div>
+      <div class="path">War.Infrastructure/Persistence/CharacterEntity.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">CharacterSkillProgressEntity · Progreso de skills</div>
+      <div class="desc">Unlocked, ascension level, timestamp de desbloqueo.</div>
+      <div class="path">War.Infrastructure/Persistence/CharacterSkillProgressEntity.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">AdminSkillRecordEntity · Skills publicables</div>
+      <div class="desc">Definición JSON, versión Draft/Published, timestamp, autor.</div>
+      <div class="path">War.Infrastructure/Persistence/AdminSkillRecordEntity.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">SocialRelationshipEntity · Relación social</div>
+      <div class="desc">Owner, target, tipo (Friend/Blocked flags).</div>
+      <div class="path">War.Infrastructure/Persistence/SocialRelationshipEntity.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">FriendRequestEntity · Solicitudes</div>
+      <div class="desc">Sender, receiver, estado, timestamp.</div>
+      <div class="path">War.Infrastructure/Persistence/FriendRequestEntity.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">Migraciones</div>
+      <div class="desc">4 migraciones: InitialCharacterSnapshotFlow, AdminSkillCatalog, AdminSkillPublicationFlow, BasicAttackComboState. ModelSnapshot mantenido por EF.</div>
+      <div class="path">War.Infrastructure/Persistence/Migrations/</div>
+    </div>
+  </section>
+
+  <section id="frontend">
+    <h2>Frontend web (cliente SignalR)</h2>
+    <div class="subtitle">Todo servido desde War.Api/wwwroot. Sin código APK/mobile-demo: se eliminó en la transición a producción.</div>
+
+    <div class="entry">
+      <span class="tag front">FRONT</span>
+      <div class="title">world.html + world.js + world.css · Cliente multijugador</div>
+      <div class="desc">Grid del mundo, UI de combate, panel social, chat, input handling. Se conecta a GameHub y ChatHub vía SignalR. Detección táctil por 'ontouchstart' (sin isMobileDevice).</div>
+      <div class="path">War.Api/wwwroot/world.html · world.js · world.css</div>
+      <div class="tree">War.Api/wwwroot/
+├── world.html
+├── world.js
+├── world.css
+├── index.html
+├── landing.html
+├── styles.css
+├── app.js
+├── manifest.json
+├── sw.js
+├── favicon.ico / favicon.png / icon-192.png / icon-512.png / apple-touch-icon.png
+└── admin/
+    ├── index.html
+    ├── admin.js
+    └── admin.css</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag front">FRONT</span>
+      <div class="title">index.html · Landing principal</div>
+      <div class="desc">Entrada pública del cliente web.</div>
+      <div class="path">War.Api/wwwroot/index.html</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag front">FRONT</span>
+      <div class="title">landing.html · Página de bienvenida</div>
+      <div class="desc">Vista de bienvenida alternativa.</div>
+      <div class="path">War.Api/wwwroot/landing.html</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag front">FRONT</span>
+      <div class="title">admin/ · Panel de skills</div>
+      <div class="desc">index.html + admin.js + admin.css. Cliente del SkillAdminController (CRUD, publicación).</div>
+      <div class="path">War.Api/wwwroot/admin/index.html · admin.js · admin.css</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag front">FRONT</span>
+      <div class="title">app.js + styles.css · Utilidades compartidas</div>
+      <div class="desc">Helpers de cliente y estilos globales / tema.</div>
+      <div class="path">War.Api/wwwroot/app.js · War.Api/wwwroot/styles.css</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag front">FRONT</span>
+      <div class="title">Presentación tecnologías demo/index.html</div>
+      <div class="desc">Slide deck HTML de presentación técnica adjunto al repo.</div>
+      <div class="path">Presentación tecnologías demo/index.html</div>
+    </div>
+  </section>
+
+  <section id="pwa">
+    <h2>PWA (Progressive Web App)</h2>
+    <div class="subtitle">Manifest, service worker e íconos. Instalable en móvil sin APK.</div>
+
+    <div class="entry">
+      <span class="tag front">FRONT</span>
+      <div class="title">manifest.json · Metadata PWA</div>
+      <div class="desc">Nombre, íconos, URL inicial, tema, display mode.</div>
+      <div class="path">War.Api/wwwroot/manifest.json</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag front">FRONT</span>
+      <div class="title">sw.js · Service Worker</div>
+      <div class="desc">Cache de recursos estáticos, soporte offline básico, manejo de fetch.</div>
+      <div class="path">War.Api/wwwroot/sw.js</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag front">FRONT</span>
+      <div class="title">Íconos PWA</div>
+      <div class="desc">favicon.ico, favicon.png, icon-192.png, icon-512.png, apple-touch-icon.png.</div>
+      <div class="path">War.Api/wwwroot/</div>
+    </div>
+  </section>
+
+  <section id="tests">
+    <h2>Pruebas de integración</h2>
+    <div class="subtitle">xUnit sobre SignalR in-memory (sin BD real). 8 suites T1-T8 que cubren conexión, movimiento, combate, chat, social, sincronización.</div>
+
+    <div class="entry">
+      <span class="tag test">TEST</span>
+      <div class="title">WarTestServer · Factory in-memory</div>
+      <div class="desc">WebApplication de prueba sin BD real. Reutilizable por todas las suites.</div>
+      <div class="path">War.IntegrationTests/WarTestServer.cs</div>
+      <div class="tree">War.IntegrationTests/
+├── <span class="hl">WarTestServer.cs</span>
+├── Helpers.cs
+├── GlobalUsings.cs
+├── T1_ConnectionTests.cs
+├── T2_MovementTests.cs
+├── T3_BasicAttackCombatTests.cs
+├── T4_SkillCombatTests.cs
+├── T5_ChatTests.cs
+├── T6_SocialFriendTests.cs
+├── T7_SocialBlockTests.cs
+└── T8_MultiplayerSyncTests.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag test">TEST</span>
+      <div class="title">Helpers · Utilidades JSON</div>
+      <div class="desc">Helpers de serialización para pruebas SignalR.</div>
+      <div class="path">War.IntegrationTests/Helpers.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag test">TEST</span>
+      <div class="title">T1_ConnectionTests</div>
+      <div class="desc">Conexión y desconexión del GameHub.</div>
+      <div class="path">War.IntegrationTests/T1_ConnectionTests.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag test">TEST</span>
+      <div class="title">T2_MovementTests</div>
+      <div class="desc">Movimiento en grid y rango de proximidad.</div>
+      <div class="path">War.IntegrationTests/T2_MovementTests.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag test">TEST</span>
+      <div class="title">T3_BasicAttackCombatTests</div>
+      <div class="desc">Combo de ataque básico, daño, hit checks.</div>
+      <div class="path">War.IntegrationTests/T3_BasicAttackCombatTests.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag test">TEST</span>
+      <div class="title">T4_SkillCombatTests</div>
+      <div class="desc">Ejecución de skills, cooldowns, costos de recursos.</div>
+      <div class="path">War.IntegrationTests/T4_SkillCombatTests.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag test">TEST</span>
+      <div class="title">T5_ChatTests</div>
+      <div class="desc">Relay de chat, rate limiting, sanitización.</div>
+      <div class="path">War.IntegrationTests/T5_ChatTests.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag test">TEST</span>
+      <div class="title">T6_SocialFriendTests</div>
+      <div class="desc">Solicitudes de amistad y listas.</div>
+      <div class="path">War.IntegrationTests/T6_SocialFriendTests.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag test">TEST</span>
+      <div class="title">T7_SocialBlockTests</div>
+      <div class="desc">Bloqueo / desbloqueo y validación.</div>
+      <div class="path">War.IntegrationTests/T7_SocialBlockTests.cs</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag test">TEST</span>
+      <div class="title">T8_MultiplayerSyncTests</div>
+      <div class="desc">Sincronización multiplayer y broadcast de cambios.</div>
+      <div class="path">War.IntegrationTests/T8_MultiplayerSyncTests.cs</div>
+    </div>
+  </section>
+
+  <section id="config">
+    <h2>Configuración, bootstrap y despliegue</h2>
+    <div class="subtitle">Punto de entrada HTTP, appsettings, Docker, Railway, config de Claude Code.</div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">Program.cs · Composición raíz</div>
+      <div class="desc">Bootstrapping ASP.NET Core: DI de servicios (singleton/scoped), DbContext PostgreSQL opcional, SignalR, hosted services (WorldTickService). GroupService registrado. Sin MIME types de APK.</div>
+      <div class="path">War.Api/Program.cs</div>
+      <div class="tree">War.Api/
+├── <span class="hl">Program.cs</span>   ← composition root
+├── appsettings.json
+├── appsettings.Production.json
+└── Properties/
+    └── launchSettings.json</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">appsettings.json / appsettings.Production.json</div>
+      <div class="desc">Configuración por ambiente (connection string, logging, etc.).</div>
+      <div class="path">War.Api/appsettings.json · War.Api/appsettings.Production.json</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag api">API</span>
+      <div class="title">launchSettings.json · Perfiles de arranque</div>
+      <div class="desc">Configuración de ejecución local (puertos, entorno).</div>
+      <div class="path">War.Api/Properties/launchSettings.json</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">Dockerfile · Imagen de contenedor</div>
+      <div class="desc">Imagen .NET 8 para despliegue.</div>
+      <div class="path">Dockerfile</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">.dockerignore</div>
+      <div class="desc">Exclusiones para el build de la imagen (bin, obj, node_modules, etc.).</div>
+      <div class="path">.dockerignore</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">railway.json · Config de Railway</div>
+      <div class="desc">Deployment config para Railway.</div>
+      <div class="path">railway.json</div>
+    </div>
+
+    <div class="entry">
+      <span class="tag infra">INFRA</span>
+      <div class="title">.claude/ · Config de Claude Code</div>
+      <div class="desc">launch.json y settings.local.json — configuración local del worktree (no afecta al runtime del juego).</div>
+      <div class="path">.claude/launch.json · .claude/settings.local.json</div>
+    </div>
+  </section>
+
+  <footer style="margin-top:60px; padding-top:20px; border-top:1px solid var(--border); color:var(--text-dim); font-size:13px;">
+    <p>Documento generado para la sesión de acoplamiento con el equipo de Unity.</p>
+    <p>Usa <kbd>/</kbd> para saltar al buscador. El listado está completo: 22 sistemas, 130+ entradas, todas las rutas verificadas contra el worktree <code>confident-cartwright</code> (rama <code>Rubén</code>).</p>
+  </footer>
+
+</main>
+
+<script>
+(function () {
+  const search = document.getElementById('search');
+  const count = document.getElementById('count');
+  const sections = Array.from(document.querySelectorAll('main section'));
+  const entries = Array.from(document.querySelectorAll('.entry'));
+
+  function normalize(s) { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+  function clearHighlights() {
+    document.querySelectorAll('mark').forEach(m => { const t = document.createTextNode(m.textContent); m.parentNode.replaceChild(t, m); });
+  }
+
+  function filter() {
+    clearHighlights();
+    const q = normalize(search.value.trim());
+    if (!q) {
+      sections.forEach(s => s.classList.remove('hidden-by-search', 'matches-search'));
+      entries.forEach(e => e.classList.remove('hidden-by-search'));
+      count.style.display = 'none';
+      return;
+    }
+    let matchCount = 0;
+    sections.forEach(section => {
+      let sectionHasMatch = false;
+      const sectionEntries = section.querySelectorAll('.entry');
+      sectionEntries.forEach(entry => {
+        const text = normalize(entry.textContent);
+        if (text.includes(q)) { entry.classList.remove('hidden-by-search'); sectionHasMatch = true; matchCount++; }
+        else { entry.classList.add('hidden-by-search'); }
+      });
+      const headerText = normalize(section.querySelector('h2')?.textContent || '');
+      if (headerText.includes(q)) { sectionHasMatch = true; sectionEntries.forEach(e => e.classList.remove('hidden-by-search')); }
+      if (sectionHasMatch) { section.classList.remove('hidden-by-search'); section.classList.add('matches-search'); }
+      else { section.classList.add('hidden-by-search'); section.classList.remove('matches-search'); }
+    });
+    count.textContent = `${matchCount} coincidencia${matchCount === 1 ? '' : 's'}`;
+    count.style.display = 'block';
+  }
+
+  search.addEventListener('input', filter);
+  document.addEventListener('keydown', e => { if (e.key === '/' && document.activeElement !== search) { e.preventDefault(); search.focus(); } });
+})();
+</script>
+</body>
+</html>

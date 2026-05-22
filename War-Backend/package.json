@@ -1,0 +1,20 @@
+{
+  "name": "confident-cartwright",
+  "version": "1.0.0",
+  "description": "El combate de WAR se resuelve a partir de un `CombatEventResolver`, que actua como orquestador del evento pero delega el trabajo real en servicios especializados. La arquitectura separa claramente calculo de magnitud, validacion de recursos, checks probabilisticos, resolucion de condiciones e interacciones, y proyeccion de recursos, para que el pipeline pueda crecer sin convertir el combate en una sola clase monolitica.",
+  "main": "create_pitch.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "docx": "^9.6.1",
+    "pptxgenjs": "^4.0.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-icons": "^5.6.0",
+    "sharp": "^0.34.5"
+  }
+}

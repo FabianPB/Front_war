@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WAR — Demo de Combate</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#BE6039" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="WAR Online" />
+    <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+    <div class="backdrop-orbit backdrop-orbit--one"></div>
+    <div class="backdrop-orbit backdrop-orbit--two"></div>
+
+    <main class="page-shell">
+        <section class="hero-banner">
+            <div>
+                <p class="eyebrow">WAR backend combat demo</p>
+                <h1>Tablero de duelo</h1>
+                <p class="hero-copy">Dos personajes persistidos, resolución de combate real, condiciones activas, cooldowns, y un log legible para el equipo.</p>
+            </div>
+            <div class="hero-controls">
+                <button id="reset-button" class="secondary-button" type="button">⟲ Restablecer</button>
+            </div>
+        </section>
+
+        <!-- Configuration Panel -->
+        <section class="config-panel" id="config-panel">
+            <div class="config-panel__header">
+                <p class="eyebrow">Configuración</p>
+                <h2>Personalizar combatientes</h2>
+            </div>
+            <div class="config-grid">
+                <div class="config-group">
+                    <h3>Combatiente A</h3>
+                    <div class="config-fields">
+                        <label>
+                            <span>Clase</span>
+                            <select id="config-a-class">
+                                <option value="Sorcerer">Sorcerer</option>
+                                <option value="Juramentada">Juramentada</option>
+                                <option value="Lancero">Lancero</option>
+                                <option value="Bruiser">Bruiser</option>
+                            </select>
+                        </label>
+                        <label>
+                            <span>Nivel</span>
+                            <input id="config-a-level" type="number" min="1" max="50" value="24" />
+                        </label>
+                        <label>
+                            <span>Ascensión</span>
+                            <input id="config-a-ascension" type="number" min="1" max="10" value="1" />
+                        </label>
+                        <button class="config-apply-button" type="button" data-config-key="a">Aplicar</button>
+                    </div>
+                </div>
+                <div class="config-group">
+                    <h3>Combatiente B</h3>
+                    <div class="config-fields">
+                        <label>
+                            <span>Clase</span>
+                            <select id="config-b-class">
+                                <option value="Sorcerer">Sorcerer</option>
+                                <option value="Juramentada">Juramentada</option>
+                                <option value="Lancero">Lancero</option>
+                                <option value="Bruiser" selected>Bruiser</option>
+                            </select>
+                        </label>
+                        <label>
+                            <span>Nivel</span>
+                            <input id="config-b-level" type="number" min="1" max="50" value="24" />
+                        </label>
+                        <label>
+                            <span>Ascensión</span>
+                            <input id="config-b-ascension" type="number" min="1" max="10" value="1" />
+                        </label>
+                        <button class="config-apply-button" type="button" data-config-key="b">Aplicar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="duel-grid">
+            <article class="combatant-card" id="combatant-a-card"></article>
+
+            <section class="command-console">
+                <div class="command-console__header">
+                    <p class="eyebrow">Acciones de demo</p>
+                    <h2>Controles de combate</h2>
+                </div>
+                <div id="command-list" class="command-list"></div>
+                <p class="status-text" id="page-status">Cargando combatientes de demo...</p>
+            </section>
+
+            <article class="combatant-card" id="combatant-b-card"></article>
+        </section>
+
+        <!-- Victory Overlay -->
+        <div id="victory-overlay" class="victory-overlay" hidden>
+            <div class="victory-content">
+                <h2 id="victory-title">¡Victoria!</h2>
+                <p id="victory-message"></p>
+                <button id="victory-reset" class="secondary-button" type="button">⟲ Restablecer combate</button>
+            </div>
+        </div>
+
+        <section class="log-board">
+            <div class="log-board__header">
+                <div>
+                    <p class="eyebrow">Feed de resolución</p>
+                    <h2>Log de combate</h2>
+                </div>
+                <div id="summary-badge" class="summary-badge">Esperando acción</div>
+            </div>
+
+            <div id="log-list" class="log-list">
+                <article class="log-empty">Ejecuta una acción para ver la resolución del combate y los cambios persistidos de recursos.</article>
+            </div>
+        </section>
+    </main>
+
+    <div id="info-overlay" class="info-overlay" hidden>
+        <div class="info-panel" role="dialog" aria-modal="true" aria-labelledby="panel-title">
+            <div class="info-panel__header">
+                <div>
+                    <p class="eyebrow">Detalles del personaje</p>
+                    <h2 id="panel-title">Snapshot completo</h2>
+                </div>
+                <button id="close-button" class="close-button" type="button" aria-label="Cerrar detalles">Cerrar</button>
+            </div>
+
+            <div class="panel-layout">
+                <section class="panel-card" id="progress-card"></section>
+                <section class="panel-card" id="combo-card"></section>
+                <section class="panel-card" id="resources-card"></section>
+                <section class="panel-card" id="power-score-card"></section>
+                <section class="panel-card panel-card--wide" id="stats-card"></section>
+                <section class="panel-card panel-card--wide" id="notes-card"></section>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>

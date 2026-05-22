@@ -1,0 +1,57 @@
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+
+# Rider
+.idea/
+
+# NuGet
+packages/
+*.nupkg
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+appsettings.Development.json
+# Node.js
+node_modules/
+package-lock.json
+
+# ═══════════════════════════════════════════════════════════════
+# WAR asset pipeline (Raizon)
+# ═══════════════════════════════════════════════════════════════
+
+# Blender master scenes (too large for git — keep GLBs/FBXs as source of truth)
+tools/blender/*.blend
+tools/blender/*.blend1
+tools/blender/*.blend2
+
+# Blender Python cache
+tools/blender/__pycache__/
+tools/**/__pycache__/
+
+# Blender addon cached temp
+tools/blender/tripo_addon.log
+
+# Local backend runtime
+War.Api/war.db
+War.Api/war.db-journal
+War.Api/*.db
+*.db
+*.db-journal

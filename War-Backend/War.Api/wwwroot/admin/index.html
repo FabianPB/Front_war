@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WAR Skill Admin</title>
+    <link rel="stylesheet" href="/admin/admin.css" />
+</head>
+<body>
+    <div class="admin-shell">
+        <header class="admin-header">
+            <div>
+                <p class="eyebrow">WAR Backend</p>
+                <h1>Skill Admin Panel</h1>
+                <p class="admin-subtitle">Catálogo persistido, validación fuerte, preview de combate y apoyo de Power Score.</p>
+            </div>
+            <div class="admin-header__actions">
+                <a class="link-button" href="/">Abrir demo de combate</a>
+                <button id="new-skill-button" class="primary-button" type="button">Nueva skill</button>
+            </div>
+        </header>
+
+        <div class="admin-layout">
+            <aside class="admin-sidebar">
+                <section class="panel-card">
+                    <div class="panel-card__header">
+                        <h2>Clases</h2>
+                    </div>
+                    <div id="class-list" class="class-list"></div>
+                </section>
+
+                <section class="panel-card panel-card--fill">
+                    <div class="panel-card__header">
+                        <h2>Skills</h2>
+                        <span id="skill-count-badge" class="status-badge">0</span>
+                    </div>
+                    <div id="skill-list" class="skill-list"></div>
+                </section>
+            </aside>
+
+            <main class="admin-main">
+                <section class="panel-card admin-toolbar">
+                    <div>
+                        <p class="eyebrow">Estado</p>
+                        <p id="admin-status" class="admin-status">Cargando catálogo administrativo...</p>
+                    </div>
+                    <div class="admin-toolbar__actions">
+                        <button id="reset-draft-button" class="secondary-button" type="button">Revertir draft</button>
+                        <button id="preview-button" class="secondary-button" type="button">Preview</button>
+                        <button id="save-button" class="primary-button" type="button">Guardar draft</button>
+                        <button id="publish-button" class="secondary-button" type="button">Publicar</button>
+                        <button id="unpublish-button" class="secondary-button" type="button">Despublicar</button>
+                        <button id="archive-button" class="danger-button" type="button">Archivar</button>
+                    </div>
+                </section>
+
+                <div class="admin-workspace">
+                    <section class="panel-card editor-panel">
+                        <div class="panel-card__header">
+                            <h2>Editor</h2>
+                            <span id="editor-mode-badge" class="status-badge">Draft</span>
+                        </div>
+                        <form id="skill-form" class="skill-form"></form>
+                    </section>
+
+                    <aside class="inspector-column">
+                        <section class="panel-card inspector-panel">
+                            <div class="panel-card__header">
+                                <h2>Detalle y validación</h2>
+                            </div>
+                            <div id="detail-panel" class="inspector-content"></div>
+                        </section>
+
+                        <section class="panel-card inspector-panel">
+                            <div class="panel-card__header">
+                                <h2>Preview y Power Score</h2>
+                            </div>
+                            <div id="preview-panel" class="inspector-content"></div>
+                        </section>
+
+                        <section class="panel-card inspector-panel">
+                            <div class="panel-card__header">
+                                <h2>Comparación</h2>
+                            </div>
+                            <div class="compare-controls">
+                                <label for="compare-select">Comparar contra</label>
+                                <select id="compare-select"></select>
+                                <button id="compare-button" class="secondary-button" type="button">Comparar</button>
+                            </div>
+                            <div id="compare-panel" class="inspector-content"></div>
+                        </section>
+                    </aside>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/admin/admin.js"></script>
+</body>
+</html>
+

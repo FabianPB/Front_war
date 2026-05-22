@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>WAR — Mundo Online</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#BE6039" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="WAR Online" />
+    <link rel="stylesheet" href="/world.css" />
+</head>
+<body>
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- LOGIN / CLASS SELECTION SCREEN                                -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-card login-card--wide">
+            <div class="login-header">
+                <p class="eyebrow">WAR ONLINE DEMO</p>
+                <h1>Entrar al mundo</h1>
+                <p class="login-subtitle">Elige tu nombre y clase para unirte al mundo multijugador en tiempo real.</p>
+            </div>
+
+            <div class="login-fields">
+                <label>
+                    <span>Nombre del personaje (3-20 caracteres)</span>
+                    <input id="input-name" type="text" minlength="3" maxlength="20" placeholder="Tu nombre de guerra" autofocus />
+                </label>
+            </div>
+
+            <!-- Class Selection Cards -->
+            <div class="class-selection">
+                <h2>Selecciona tu clase</h2>
+                <div class="class-grid">
+                    <button class="class-card" data-class="Sorcerer" type="button">
+                        <div class="class-card__icon" style="color:#818cf8">✦</div>
+                        <h3>Sorcerer</h3>
+                        <p>Mago DPS — Daño mágico devastador a distancia. Especialista en AoE y control elemental.</p>
+                    </button>
+                    <button class="class-card" data-class="Juramentada" type="button">
+                        <div class="class-card__icon" style="color:#f59e0b">✟</div>
+                        <h3>Juramentada</h3>
+                        <p>Híbrido Sagrado — Daño y curación. Melee con habilidades de soporte divino.</p>
+                    </button>
+                    <button class="class-card" data-class="Lancero" type="button">
+                        <div class="class-card__icon" style="color:#2DD4BF">⚔</div>
+                        <h3>Lancero</h3>
+                        <p>DPS Físico — El mayor ataque físico. Rápido, letal, con veneno y electricidad.</p>
+                    </button>
+                    <button class="class-card" data-class="Bruiser" type="button">
+                        <div class="class-card__icon" style="color:#ef4444">⛊</div>
+                        <h3>Bruiser</h3>
+                        <p>Tanque — Alta supervivencia, control de masas, protección de aliados. El más duro.</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Skill Preview Panel (appears when class is selected) -->
+            <div id="skill-preview" class="skill-preview" hidden>
+                <h2 id="skill-preview-title">Habilidades</h2>
+                <div id="skill-preview-list" class="skill-preview-list"></div>
+            </div>
+
+            <div class="login-actions">
+                <button id="btn-join" class="btn-primary" type="button" disabled>Selecciona una clase</button>
+                <p id="login-error" class="login-error" hidden></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- GAME SCREEN                                                   -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div id="game-screen" class="game-screen" hidden>
+
+        <!-- ── HUD Top Bar ── -->
+        <header class="hud-top">
+            <div class="hud-top__left">
+                <span class="hud-logo">WAR</span>
+                <div class="hud-player-info">
+                    <span id="hud-name" class="hud-name"></span>
+                    <span id="hud-class-level" class="hud-class-level"></span>
+                </div>
+            </div>
+            <div class="hud-top__center">
+                <div class="hud-bars">
+                    <div class="hud-bar hud-bar--hp">
+                        <div id="hud-hp-fill" class="hud-bar__fill"></div>
+                        <span id="hud-hp-text" class="hud-bar__text">0 / 0</span>
+                    </div>
+                    <div class="hud-bar hud-bar--mp">
+                        <div id="hud-mp-fill" class="hud-bar__fill"></div>
+                        <span id="hud-mp-text" class="hud-bar__text">0 / 0</span>
+                    </div>
+                </div>
+                <div id="hud-conditions" class="hud-conditions"></div>
+            </div>
+            <div class="hud-top__right">
+                <span id="online-count" class="online-badge">0 online</span>
+                <span id="coords-display" class="coords-badge">0, 0</span>
+                <button id="btn-review-skills" class="btn-icon" type="button" title="Revisar habilidades">📖</button>
+                <button id="btn-reset-self" class="btn-icon" type="button" title="Restablecer HP/MP">⟲</button>
+                <button id="btn-controls-help" class="btn-icon" type="button" title="Controles">?</button>
+            </div>
+        </header>
+
+        <!-- ── Main Game Area ── -->
+        <div class="game-main">
+            <!-- World Canvas -->
+            <div class="world-area">
+                <canvas id="world-canvas"></canvas>
+
+                <!-- Mobile Web Joystick (only visible on touch devices) -->
+                <div id="web-joystick" class="web-joystick" hidden>
+                    <div class="web-joystick__pad" id="web-joystick-pad"></div>
+                </div>
+
+                <!-- Target Info Bar (below canvas) -->
+                <div id="target-bar" class="target-bar" hidden>
+                    <div class="target-bar__info">
+                        <span id="target-name" class="target-name"></span>
+                        <span id="target-class" class="target-class"></span>
+                    </div>
+                    <div class="target-bar__hp">
+                        <div id="target-hp-fill" class="target-hp__fill"></div>
+                        <span id="target-hp-text" class="target-hp__text"></span>
+                    </div>
+                    <button id="btn-auto-target" class="btn-icon-small" type="button" title="Auto-target más cercano (Tab)" style="margin-left:auto">⊕</button>
+                    <button id="btn-deselect-target" class="btn-icon-small" type="button" title="Deseleccionar">✕</button>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <aside class="sidebar">
+                <!-- Nearby Players -->
+                <section class="sidebar-card">
+                    <h3>Cercanos <span id="nearby-count" class="count-badge">0</span></h3>
+                    <div id="nearby-list" class="nearby-list">
+                        <p class="empty-hint">Nadie cerca.</p>
+                    </div>
+                </section>
+
+                <!-- Chat -->
+                <section class="sidebar-card chat-card">
+                    <h3 style="display:flex;justify-content:space-between;align-items:center">Chat local <button id="btn-toggle-chat" class="btn-icon-small" type="button" title="Cerrar chat">✕</button></h3>
+                    <div id="chat-log" class="chat-log"></div>
+                    <div class="chat-input-row">
+                        <input id="chat-input" type="text" maxlength="200" placeholder="Mensaje..." />
+                        <button id="btn-send-chat" class="btn-small" type="button">➤</button>
+                    </div>
+                </section>
+            </aside>
+        </div>
+
+        <!-- ── Bottom Bar: Skills + Combat Log ── -->
+        <div class="bottom-bar">
+            <!-- Skill Bar -->
+            <div class="skill-bar">
+                <div class="skill-bar__nav">
+                    <button id="btn-skill-prev" class="btn-skill-nav" type="button" disabled>◀</button>
+                    <span id="skill-page-label" class="skill-page-label">1-6</span>
+                    <button id="btn-skill-next" class="btn-skill-nav" type="button">▶</button>
+                </div>
+                <div id="skill-slots" class="skill-slots"></div>
+                <div class="skill-ultimate-slot">
+                    <button id="btn-ultimate" class="skill-btn skill-btn--ultimate" type="button" disabled>
+                        <span class="skill-btn__key">R</span>
+                        <span class="skill-btn__name">Ultimate</span>
+                    </button>
+                </div>
+                <!-- Basic Attack -->
+                <button id="btn-basic-attack" class="btn-basic-attack" type="button" title="Ataque básico (F)">⚔<span>F</span></button>
+            </div>
+
+            <!-- Combat Log -->
+            <div class="combat-log">
+                <div class="combat-log__header">
+                    <h3>Log de combate</h3>
+                </div>
+                <div id="combat-log-list" class="combat-log__list"></div>
+            </div>
+        </div>
+
+        <!-- ── Context Menu (right-click on player) ── -->
+        <div id="context-menu" class="context-menu" hidden>
+            <button class="context-menu__item" data-action="chat" type="button">💬 Chatear</button>
+            <button class="context-menu__item" data-action="profile" type="button">👤 Ver perfil</button>
+            <button class="context-menu__item" data-action="friend" type="button">🤝 Solicitud de amistad</button>
+            <button class="context-menu__item" data-action="block" type="button">🚫 Bloquear</button>
+        </div>
+
+        <!-- ── Skills Review Modal ── -->
+        <div id="skills-review-overlay" class="controls-overlay" hidden>
+            <div class="skills-review-panel">
+                <div class="skills-review-header">
+                    <h2>Catálogo de Habilidades — <span id="sr-class-name"></span></h2>
+                    <button id="btn-close-skills-review" class="btn-icon" type="button" title="Cerrar">✕</button>
+                </div>
+                <div class="skills-review-body">
+                    <div class="skills-review-list" id="sr-skill-list"></div>
+                    <div class="skills-review-detail" id="sr-skill-detail">
+                        <p class="empty-hint">Selecciona una habilidad para ver sus detalles.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Controls Help Overlay ── -->
+        <div id="controls-overlay" class="controls-overlay" hidden>
+            <div class="controls-panel">
+                <h2>Controles</h2>
+                <div class="controls-grid">
+                    <div><kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd></div><div>Mover personaje</div>
+                    <div><kbd>1</kbd> - <kbd>6</kbd></div><div>Usar habilidad del slot visible</div>
+                    <div><kbd>R</kbd></div><div>Usar habilidad definitiva</div>
+                    <div><kbd>Clic</kbd> en jugador</div><div>Seleccionar como objetivo</div>
+                    <div><kbd>Clic derecho</kbd></div><div>Menú de interacción social</div>
+                    <div><kbd>Enter</kbd></div><div>Enviar mensaje de chat</div>
+                    <div><kbd>Esc</kbd></div><div>Cerrar menú / deseleccionar</div>
+                </div>
+                <button id="btn-close-controls" class="btn-primary" type="button" style="margin-top:1rem">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script src="/world.js"></script>
+    <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}</script>
+</body>
+</html>
